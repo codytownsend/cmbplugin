@@ -319,6 +319,77 @@ function mindbody_get_bookable_items() {
 add_action('wp_ajax_mindbody_get_bookable_items', 'mindbody_get_bookable_items');
 add_action('wp_ajax_nopriv_mindbody_get_bookable_items', 'mindbody_get_bookable_items');
 
+function mindbody_get_service_price() {
+    $auth_token = mindbody_get_valid_token();
+    if (!$auth_token) {
+        wp_send_json_error(['message' => 'Authentication failed.']);
+    }
+    
+    $service_id = isset($_GET['serviceId']) ? sanitize_text_field($_GET['serviceId']) : '';
+    
+    if (empty($service_id)) {
+        wp_send_json_error(['message' => 'Service ID is required.']);
+    }
+    
+    // First try to get price from session types
+    $session_types = mindbody_get_session_types();
+    foreach ($session_types as $type) {
+        if ($type['Id'] == $service_id && isset($type['Price'])) {
+            wp_send_json_success($type['Price']);
+            return;
+        }
+    }
+    
+    // If not found, try to get from sale services
+    $sale_services = mindbody_get_sale_services_by_session_types();
+    foreach ($sale_services as $service) {
+        if ($service['ProgramId'] == $service_id && isset($service['Price'])) {
+            wp_send_json_success($service['Price']);
+            return;
+        }
+    }
+    
+    // If still not found, make a direct API call for this specific service
+    $url = "https://api.mindbodyonline.com/public/v6/site/sessiontypes/{$service_id}";
+    
+    $args = [
+        'headers' => [
+            'Content-Type' => 'application/json',
+            'Api-Key' => get_option('mindbody_api_key'),
+            'SiteId' => get_option('mindbody_site_id'),
+            'Authorization' => "Bearer $auth_token"
+        ],
+        'timeout' => 15
+    ];
+    
+    $response = wp_remote_get($url, $args);
+    $body = json_decode(wp_remote_retrieve_body($response), true);
+    
+    if (!is_wp_error($response) && !empty($body) && isset($body['Price'])) {
+        wp_send_json_success($body['Price']);
+    } else {
+        // Try one more approach using sale/services endpoint
+        $params = http_build_query([
+            'request.sessionTypeIds[0]' => $service_id,
+        ]);
+        
+        $url = "https://api.mindbodyonline.com/public/v6/sale/services?{$params}";
+        
+        $response = wp_remote_get($url, $args);
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        
+        if (!is_wp_error($response) && !empty($body['Services']) && isset($body['Services'][0]['Price'])) {
+            wp_send_json_success($body['Services'][0]['Price']);
+        } else {
+            // Default fallback price
+            wp_send_json_success(95);
+        }
+    }
+}
+
+add_action('wp_ajax_mindbody_get_service_price', 'mindbody_get_service_price');
+add_action('wp_ajax_nopriv_mindbody_get_service_price', 'mindbody_get_service_price');
+
 // Fetch available dates
 function mindbody_get_available_dates() {
     $auth_token = mindbody_get_valid_token();
@@ -642,30 +713,143 @@ add_action('wp_ajax_nopriv_mindbody_get_saved_payment_methods', 'mindbody_get_sa
 function mindbody_book_appointment() {
     $data = json_decode(file_get_contents('php://input'), true);
     
-    if (empty($data['serviceId']) || empty($data['date']) || empty($data['time']) || empty($data['payment'])) {
-        wp_send_json_error(['message' => 'Missing required booking or payment information.']);
+    if (empty($data['appointments']) || empty($data['client']) || empty($data['payment'])) {
+        wp_send_json_error(['message' => 'Missing required booking information.']);
         return;
     }
-    
-    // Build the booking request according to Mindbody's API specifications.
-    $bookingRequest = [
-        "SessionTypeId" => $data['serviceId'],
-        "StaffId" => isset($data['staffId']) ? $data['staffId'] : null,
-        "StartDateTime" => $data['date'] . "T" . $data['time'] . ":00Z",
-        "Payment" => $data['payment'], // This now includes either new card details or a saved payment method ID.
-        "Client" => [
-            "FirstName" => $data['client']['firstName'],
-            "LastName" => $data['client']['lastName'],
-            "Email" => $data['client']['email'],
-            "Phone" => $data['client']['phone']
-        ]
-    ];
     
     $auth_token = mindbody_get_valid_token();
     if (!$auth_token) {
         wp_send_json_error(['message' => 'Authentication failed.']);
+        return;
     }
     
+    // Check if client exists or create new client
+    $client_id = ensure_client_exists($data['client']);
+    if (!$client_id) {
+        wp_send_json_error(['message' => 'Failed to create or verify client.']);
+        return;
+    }
+    
+    // Process each appointment
+    $successful_bookings = [];
+    $failed_bookings = [];
+    
+    foreach ($data['appointments'] as $appointment) {
+        // Skip appointments missing required data
+        if (empty($appointment['serviceId']) || empty($appointment['date']) || empty($appointment['time'])) {
+            $failed_bookings[] = [
+                'serviceId' => $appointment['serviceId'] ?? 'unknown',
+                'error' => 'Missing required appointment data'
+            ];
+            continue;
+        }
+        
+        // Build the booking request
+        $bookingRequest = [
+            "ClientId" => $client_id,
+            "SessionTypeId" => $appointment['serviceId'],
+            "StaffId" => !empty($appointment['staffId']) ? $appointment['staffId'] : null,
+            "StartDateTime" => $appointment['date'] . "T" . $appointment['time'] . ":00Z",
+            "ApplyPayment" => true,
+            "SendEmail" => true,
+            "Test" => false,
+            "PaymentInfo" => $data['payment']
+        ];
+        
+        // Make the API request
+        $response = book_single_appointment($bookingRequest, $auth_token);
+        
+        if ($response && !empty($response['Appointment'])) {
+            $successful_bookings[] = $response['Appointment'];
+        } else {
+            $failed_bookings[] = [
+                'serviceId' => $appointment['serviceId'],
+                'error' => isset($response['Message']) ? $response['Message'] : 'Unknown booking error'
+            ];
+        }
+    }
+    
+    // All appointments failed
+    if (count($successful_bookings) === 0 && count($failed_bookings) > 0) {
+        wp_send_json_error([
+            'message' => 'All bookings failed.',
+            'errors' => $failed_bookings
+        ]);
+        return;
+    }
+    
+    // Some appointments succeeded, some failed
+    if (count($failed_bookings) > 0) {
+        wp_send_json_success([
+            'message' => 'Some bookings succeeded, but others failed.',
+            'appointments' => $successful_bookings,
+            'errors' => $failed_bookings
+        ]);
+        return;
+    }
+    
+    // All appointments succeeded
+    wp_send_json_success([
+        'message' => 'All bookings successful!',
+        'appointments' => $successful_bookings
+    ]);
+}
+add_action('wp_ajax_mindbody_book_appointment', 'mindbody_book_appointment');
+add_action('wp_ajax_nopriv_mindbody_book_appointment', 'mindbody_book_appointment');
+
+// Helper function to ensure client exists or create new one
+function ensure_client_exists($client_data) {
+    $auth_token = mindbody_get_valid_token();
+    if (!$auth_token) {
+        return false;
+    }
+    
+    // First check if client exists by email
+    if (!empty($client_data['email'])) {
+        $client = get_mindbody_client_by_email($client_data['email']);
+        if ($client && !empty($client['Id'])) {
+            return $client['Id'];
+        }
+    }
+    
+    // If not found or no email, create new client
+    $new_client = [
+        'FirstName' => $client_data['firstName'],
+        'LastName' => $client_data['lastName'],
+        'Email' => $client_data['email'] ?? '',
+        'MobilePhone' => $client_data['phone'] ?? '',
+        'SendAccountEmails' => true,
+        'SendAccountTexts' => true,
+        'SendPromotionalEmails' => false,
+        'SendPromotionalTexts' => false,
+    ];
+    
+    $url = "https://api.mindbodyonline.com/public/v6/client/addclient";
+    $args = [
+        'method' => 'POST',
+        'headers' => [
+            'Content-Type' => 'application/json',
+            'Api-Key' => get_option('mindbody_api_key'),
+            'SiteId' => get_option('mindbody_site_id'),
+            'Authorization' => "Bearer $auth_token"
+        ],
+        'body' => json_encode(['Client' => $new_client]),
+        'timeout' => 15
+    ];
+    
+    $response = wp_remote_post($url, $args);
+    $body = json_decode(wp_remote_retrieve_body($response), true);
+    
+    if (!is_wp_error($response) && !empty($body['Client']['Id'])) {
+        return $body['Client']['Id'];
+    }
+    
+    return false;
+}
+
+// Helper function to book a single appointment
+function book_single_appointment($booking_request, $auth_token) {
     $url = "https://api.mindbodyonline.com/public/v6/appointment/book";
     $args = [
         'method' => 'POST',
@@ -675,27 +859,24 @@ function mindbody_book_appointment() {
             'SiteId' => get_option('mindbody_site_id'),
             'Authorization' => "Bearer $auth_token"
         ],
-        'body' => json_encode($bookingRequest),
+        'body' => json_encode($booking_request),
         'timeout' => 15
     ];
     
     $response = wp_remote_post($url, $args);
+    
+    if (is_wp_error($response)) {
+        error_log('Booking error: ' . $response->get_error_message());
+        return null;
+    }
+    
     $body = json_decode(wp_remote_retrieve_body($response), true);
     
-    if (is_wp_error($response) || empty($body)) {
-        wp_send_json_error(['message' => 'Booking failed. Please try again.']);
-    }
+    // Log the response for debugging
+    error_log('Mindbody Booking Response: ' . print_r($body, true));
     
-    if (!empty($body['Appointment'])) {
-        wp_send_json_success(['message' => 'Booking successful!', 'appointment' => $body['Appointment']]);
-    } else {
-        wp_send_json_error(['message' => 'Booking failed: ' . print_r($body, true)]);
-    }
+    return $body;
 }
-add_action('wp_ajax_mindbody_book_appointment', 'mindbody_book_appointment');
-add_action('wp_ajax_nopriv_mindbody_book_appointment', 'mindbody_book_appointment');
-
-
 
 // Shortcode for booking widget
 function mindbody_booking_shortcode() {
