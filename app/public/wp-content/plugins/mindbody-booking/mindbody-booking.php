@@ -156,22 +156,108 @@ function get_mindbody_client_by_email($email) {
 
 // Add endpoint to verify availability
 function mindbody_verify_availability() {
-    $json_data = json_decode(file_get_contents('php://input'), true);
+    // Ensure we're getting JSON input
+    $content_type = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
     
-    // Verify the selected service/time is still available
-    $auth_token = mindbody_get_valid_token();
-    if (!$auth_token) {
-        wp_send_json_error(['message' => 'Authentication failed']);
+    if (strpos($content_type, 'application/json') !== false) {
+        $json_data = json_decode(file_get_contents('php://input'), true);
+    } else {
+        // Fallback to POST/GET params if not JSON
+        $json_data = [
+            'serviceId' => isset($_REQUEST['serviceId']) ? sanitize_text_field($_REQUEST['serviceId']) : '',
+            'staffId' => isset($_REQUEST['staffId']) ? sanitize_text_field($_REQUEST['staffId']) : '',
+            'date' => isset($_REQUEST['date']) ? sanitize_text_field($_REQUEST['date']) : '',
+            'time' => isset($_REQUEST['time']) ? sanitize_text_field($_REQUEST['time']) : ''
+        ];
     }
     
-    // Call Mindbody API to check availability
-    // This will depend on your specific Mindbody API implementation
-    $is_available = check_appointment_availability($json_data);
+    // Validate required parameters
+    if (empty($json_data['serviceId']) || empty($json_data['date']) || empty($json_data['time'])) {
+        wp_send_json_error(['message' => 'Missing required parameters']);
+        return;
+    }
     
-    if ($is_available) {
-        wp_send_json_success();
-    } else {
-        wp_send_json_error(['message' => 'Time slot no longer available']);
+    try {
+        // Get valid auth token
+        $auth_token = mindbody_get_valid_token();
+        if (!$auth_token) {
+            wp_send_json_error(['message' => 'Authentication failed']);
+            return;
+        }
+        
+        // Extract date & time
+        $date = explode('T', $json_data['date'])[0]; // Get only the date part
+        $time = $json_data['time'];
+        
+        // Format datetime for API
+        $datetime = $date . 'T' . $time . ':00Z';
+        
+        // Build parameters for API call
+        $params = [
+            "request.sessionTypeId" => $json_data['serviceId'],
+            "request.startDateTime" => $datetime,
+            "request.endDateTime" => $datetime
+        ];
+        
+        if (!empty($json_data['staffId'])) {
+            $params["request.staffId"] = $json_data['staffId'];
+        }
+        
+        $url = "https://api.mindbodyonline.com/public/v6/appointment/bookableitems?" . http_build_query($params);
+        
+        $args = [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Api-Key' => get_option('mindbody_api_key'),
+                'SiteId' => get_option('mindbody_site_id'),
+                'Authorization' => "Bearer {$auth_token}"
+            ],
+            'timeout' => 15
+        ];
+        
+        // Log the request for debugging
+        error_log("Verify availability request: " . print_r($params, true));
+        
+        $response = wp_remote_get($url, $args);
+        
+        if (is_wp_error($response)) {
+            error_log("Verify availability error: " . $response->get_error_message());
+            wp_send_json_error(['message' => 'API error: ' . $response->get_error_message()]);
+            return;
+        }
+        
+        $status_code = wp_remote_retrieve_response_code($response);
+        if ($status_code !== 200) {
+            error_log("Verify availability API error. Status: {$status_code}, Response: " . wp_remote_retrieve_body($response));
+            wp_send_json_error(['message' => "API returned status {$status_code}"]);
+            return;
+        }
+        
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        
+        // Check if the slot is available
+        $is_available = false;
+        if (!empty($body['Availabilities'])) {
+            foreach ($body['Availabilities'] as $availability) {
+                $start_time = new DateTime($availability['StartDateTime']);
+                $requested_time = new DateTime($datetime);
+                
+                // Compare the timestamp (ignore seconds)
+                if ($start_time->format('Y-m-d H:i') === $requested_time->format('Y-m-d H:i')) {
+                    $is_available = true;
+                    break;
+                }
+            }
+        }
+        
+        if ($is_available) {
+            wp_send_json_success(['message' => 'Time slot is available']);
+        } else {
+            wp_send_json_error(['message' => 'Time slot is not available']);
+        }
+    } catch (Exception $e) {
+        error_log("Verify availability exception: " . $e->getMessage());
+        wp_send_json_error(['message' => 'Error: ' . $e->getMessage()]);
     }
 }
 add_action('wp_ajax_mindbody_verify_availability', 'mindbody_verify_availability');

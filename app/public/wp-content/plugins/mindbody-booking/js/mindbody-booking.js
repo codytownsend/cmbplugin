@@ -89,22 +89,46 @@ async function checkAuthAndCart() {
 
 // Verify cart availability
 async function verifyCartAvailability(cart) {
+    if (!cart || !cart.items || cart.items.length === 0) {
+        return false;
+    }
+    
     try {
+        // We'll only verify the first item for performance reasons
+        const item = cart.items[0];
+        
+        if (!item.service || !item.service.Id || !item.date || !item.time) {
+            console.warn('Cart item is missing required data:', item);
+            return false;
+        }
+        
         const response = await fetch(mindbody_booking.ajax_url + "?action=mindbody_verify_availability", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                serviceId: cart.service.Id,
-                staffId: cart.staff?.Id,
-                date: cart.date,
-                time: cart.time
+                serviceId: item.service.Id,
+                staffId: item.staff?.Id || '',
+                date: item.date,
+                time: item.time
             })
         });
         
-        const data = await response.json();
-        return data.success;
+        // Check for HTTP errors first
+        if (!response.ok) {
+            console.error('Availability verification HTTP error:', response.status, response.statusText);
+            return false;
+        }
+        
+        // Now try to parse JSON
+        try {
+            const data = await response.json();
+            return data.success === true;
+        } catch (jsonError) {
+            console.error('JSON parsing error:', jsonError);
+            return false;
+        }
     } catch (error) {
         console.error('Availability verification error:', error);
         return false;
@@ -294,6 +318,13 @@ function displayBookableItems(items) {
         return;
     }
 
+    // Pre-fetch prices for all services if they don't have one already
+    items.forEach(service => {
+        if (!service.Price || service.Price <= 0) {
+            fetchAndCacheServicePrice(service.Id);
+        }
+    });
+
     container.innerHTML = `
         <div class="space-y-6">
             ${renderProgressHeader(1)}
@@ -309,7 +340,7 @@ function displayBookableItems(items) {
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <h3 class="text-lg font-medium text-gray-900">${service.Name}</h3>
-                                        <p class="text-sm text-gray-500">Price: $${price}</p>
+                                        <p class="text-sm text-gray-500">Price: $${price.toFixed(2)}</p>
                                         ${service.OnlineDescription ? `<p class="mt-1 text-sm text-gray-500">${service.OnlineDescription}</p>` : ''}
                                     </div>
                                     <div class="ml-4">
@@ -347,6 +378,33 @@ function displayBookableItems(items) {
             </div>
         </div>
     `;
+    
+    // Add price refresher to update prices as they come in
+    setTimeout(refreshServicePrices, 1000, items);
+}
+
+// Function to refresh service prices after they've been fetched
+function refreshServicePrices(items) {
+    if (!window.cachedServices) return;
+    
+    const priceElements = document.querySelectorAll('.text-sm.text-gray-500');
+    let needsRefresh = false;
+    
+    items.forEach(service => {
+        // Check if price has been updated
+        const cachedService = window.cachedServices.find(s => s.Id === service.Id);
+        if (cachedService && cachedService.Price && (!service.Price || service.Price !== cachedService.Price)) {
+            needsRefresh = true;
+        }
+    });
+    
+    if (needsRefresh) {
+        // Only re-render if prices have changed
+        displayBookableItems(window.cachedServices);
+    } else {
+        // Check again in a second
+        setTimeout(refreshServicePrices, 1000, items);
+    }
 }
 
 function selectServiceAndStaff(serviceId, serviceName, staffJson) {
@@ -1000,6 +1058,10 @@ function continueShopping() {
 
 // Format phone number as user types
 function formatPhoneNumber(input) {
+    // Store current cursor position
+    const cursorPos = input.selectionStart;
+    const oldLength = input.value.length;
+    
     // Get input value and remove non-numeric characters
     let value = input.value.replace(/\D/g, '');
     
@@ -1014,12 +1076,24 @@ function formatPhoneNumber(input) {
         }
     }
     
-    // Update input value
-    input.value = value;
+    // Only update if the value has changed
+    if (input.value !== value) {
+        // Update input value
+        input.value = value;
+        
+        // Adjust cursor position based on added formatting characters
+        const newLength = input.value.length;
+        const lengthDiff = newLength - oldLength;
+        input.setSelectionRange(cursorPos + lengthDiff, cursorPos + lengthDiff);
+    }
 }
 
 // Format credit card number with spaces and detect card type
 function formatCreditCard(input) {
+    // Store current cursor position
+    const cursorPos = input.selectionStart;
+    const oldValue = input.value;
+    
     // Remove non-numeric characters
     let value = input.value.replace(/\D/g, '');
     
@@ -1032,22 +1106,29 @@ function formatCreditCard(input) {
         formattedValue += value[i];
     }
     
-    // Update input value
-    input.value = formattedValue;
+    // Only update if the value has changed
+    if (oldValue !== formattedValue) {
+        // Count how many extra chars were added before cursor
+        let extraChars = 0;
+        for (let i = 0; i < Math.min(cursorPos, formattedValue.length); i++) {
+            if (formattedValue[i] === ' ' && (i >= oldValue.length || oldValue[i] !== ' ')) {
+                extraChars++;
+            }
+        }
+        
+        // Update input value
+        input.value = formattedValue;
+        
+        // Restore cursor position accounting for added spaces
+        const newCursorPos = cursorPos + extraChars;
+        input.setSelectionRange(newCursorPos, newCursorPos);
+    }
     
     // Detect card type based on first digits
     const cardType = detectCardType(value);
     
     // Get the card number input element and update its classes
-    const cardElement = document.getElementById('cardNumber');
-    
-    // Remove all card type classes
-    cardElement.classList.remove('visa', 'mastercard', 'amex', 'discover');
-    
-    // Add appropriate card type class
     if (cardType) {
-        cardElement.classList.add(cardType.toLowerCase());
-        
         // Display card icon if desired
         const cardIconElement = document.getElementById('cardTypeIcon');
         if (cardIconElement) {
@@ -1079,6 +1160,10 @@ function detectCardType(number) {
 
 // Format expiry date as MM/YY
 function formatExpiryDate(input) {
+    // Store current cursor position
+    const cursorPos = input.selectionStart;
+    const oldValue = input.value;
+    
     // Remove non-numeric characters
     let value = input.value.replace(/\D/g, '');
     
@@ -1087,8 +1172,18 @@ function formatExpiryDate(input) {
         value = `${value.slice(0, 2)}/${value.slice(2, 4)}`;
     }
     
-    // Update input value
-    input.value = value;
+    // Only update if value changed
+    if (oldValue !== value) {
+        // Calculate added characters
+        const addedSlash = (value.length > 2 && (oldValue.length <= 2 || oldValue[2] !== '/')) ? 1 : 0;
+        
+        // Update input value
+        input.value = value;
+        
+        // Adjust cursor position if we added a slash
+        const newCursorPos = cursorPos + addedSlash;
+        setTimeout(() => input.setSelectionRange(newCursorPos, newCursorPos), 0);
+    }
 }
 
 // Initialize input formatting
@@ -1096,19 +1191,40 @@ function initializeFormattingListeners() {
     // Phone number formatting
     const phoneInput = document.querySelector('input[type="tel"]');
     if (phoneInput) {
-        phoneInput.addEventListener('input', () => formatPhoneNumber(phoneInput));
+        phoneInput.addEventListener('input', function(e) {
+            // Don't format if the change is due to our own formatting
+            if (e.inputType === 'insertText' || e.inputType === 'deleteContentBackward') {
+                formatPhoneNumber(this);
+            }
+        });
+        // Initial formatting
+        formatPhoneNumber(phoneInput);
     }
     
     // Credit card formatting
     const cardInput = document.getElementById('cardNumber');
     if (cardInput) {
-        cardInput.addEventListener('input', () => formatCreditCard(cardInput));
+        cardInput.addEventListener('input', function(e) {
+            // Don't format if the change is due to our own formatting
+            if (e.inputType === 'insertText' || e.inputType === 'deleteContentBackward') {
+                formatCreditCard(this);
+            }
+        });
+        // Initial formatting
+        formatCreditCard(cardInput);
     }
     
     // Expiry date formatting
     const expiryInput = document.querySelector('input[name="expiry"]');
     if (expiryInput) {
-        expiryInput.addEventListener('input', () => formatExpiryDate(expiryInput));
+        expiryInput.addEventListener('input', function(e) {
+            // Don't format if the change is due to our own formatting
+            if (e.inputType === 'insertText' || e.inputType === 'deleteContentBackward') {
+                formatExpiryDate(this);
+            }
+        });
+        // Initial formatting
+        formatExpiryDate(expiryInput);
     }
 }
 
@@ -1149,6 +1265,16 @@ function goToCheckout() {
         fetchBookableItems();
         return;
     }
+    
+    // Save existing form values if present
+    const formValues = {
+        firstName: document.querySelector('input[name="firstName"]')?.value || '',
+        lastName: document.querySelector('input[name="lastName"]')?.value || '',
+        phone: document.querySelector('input[name="phone"]')?.value || '',
+        cardNumber: document.getElementById('cardNumber')?.value || '',
+        expiry: document.querySelector('input[name="expiry"]')?.value || '',
+        cvv: document.querySelector('input[name="cvv"]')?.value || ''
+    };
     
     // Calculate cart total
     let subtotal = 0;
@@ -1259,7 +1385,7 @@ function goToCheckout() {
                             <input 
                                 type="text" 
                                 name="firstName"
-                                value="${window.clientInfo?.first_name || window.clientInfo?.FirstName || ''}"
+                                value="${formValues.firstName || window.clientInfo?.first_name || window.clientInfo?.FirstName || ''}"
                                 class="w-full px-3 py-2 text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-20 focus:border-black transition-all placeholder-gray-400"
                                 required
                             />
@@ -1283,7 +1409,7 @@ function goToCheckout() {
                                 name="phone"
                                 class="w-full pl-10 pr-3 py-2 text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-20 focus:border-black transition-all placeholder-gray-400"
                                 placeholder="(XXX) XXX-XXXX"
-                                value="${phoneValue}"
+                                value="${formValues.phone || phoneValue}"
                                 required
                             />
                             <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -1335,6 +1461,7 @@ function goToCheckout() {
                             id="cardNumber"
                             name="cardNumber" 
                             placeholder="Card Number" 
+                            value="${formValues.cardNumber}"
                             class="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                             required
                         />
@@ -1352,7 +1479,8 @@ function goToCheckout() {
                             <input 
                                 type="text" 
                                 name="expiry" 
-                                placeholder="MM/YY" 
+                                placeholder="MM/YY"
+                                value="${formValues.expiry}" 
                                 class="w-full pl-10 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                                 required
                             />
@@ -1366,7 +1494,8 @@ function goToCheckout() {
                             <input 
                                 type="text" 
                                 name="cvv" 
-                                placeholder="CVV" 
+                                placeholder="CVV"
+                                value="${formValues.cvv}" 
                                 class="w-full pl-10 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                                 required
                                 maxlength="4"
@@ -1435,14 +1564,25 @@ function togglePromoCode() {
 }
 
 function completeBooking() {
-    const paymentOption = document.querySelector('input[name="paymentOption"]:checked').value;
+    // Gather all form values first
+    const formValues = {
+        firstName: document.querySelector('input[name="firstName"]')?.value || '',
+        lastName: document.querySelector('input[name="lastName"]')?.value || '',
+        phone: document.querySelector('input[name="phone"]')?.value || '',
+        cardNumber: document.getElementById('cardNumber')?.value || '',
+        expiry: document.querySelector('input[name="expiry"]')?.value || '',
+        cvv: document.querySelector('input[name="cvv"]')?.value || ''
+    };
+    
+    // Continue with existing logic...
+    const paymentOption = document.querySelector('input[name="paymentOption"]:checked')?.value || 'new';
     let paymentData = {};
 
     if (paymentOption === "new") {
-        // Get new card details
-        const cardNumber = document.querySelector('input[name="cardNumber"]').value.replace(/\s/g, '');
-        const expiry = document.querySelector('input[name="expiry"]').value; // Expected MM/YY
-        const cvv = document.querySelector('input[name="cvv"]').value;
+        // Get new card details from our saved values
+        const cardNumber = formValues.cardNumber.replace(/\s/g, '');
+        const expiry = formValues.expiry; // Expected MM/YY
+        const cvv = formValues.cvv;
         
         if (!cardNumber || !expiry || !cvv) {
             alert("Please fill in all credit card details.");
@@ -1478,12 +1618,8 @@ function completeBooking() {
         return;
     }
     
-    // Get client information
-    const firstName = document.querySelector('input[name="firstName"]').value;
-    const lastName = document.querySelector('input[name="lastName"]').value;
-    const phone = document.querySelector('input[name="phone"]').value.replace(/\D/g, '');
-    
-    if (!firstName || !lastName || !phone) {
+    // Use our saved form values
+    if (!formValues.firstName || !formValues.lastName || !formValues.phone) {
         alert("Please fill in all contact details.");
         return;
     }
@@ -1497,9 +1633,9 @@ function completeBooking() {
             time: item.time
         })),
         client: {
-            firstName: firstName,
-            lastName: lastName,
-            phone: phone,
+            firstName: formValues.firstName,
+            lastName: formValues.lastName,
+            phone: formValues.phone.replace(/\D/g, ''),
             email: window.clientInfo?.email || ''
         },
         payment: paymentData
@@ -1507,6 +1643,8 @@ function completeBooking() {
 
     // Show loading state
     const bookButton = document.querySelector('button[onclick="completeBooking()"]');
+    if (!bookButton) return;
+    
     const originalText = bookButton.innerHTML;
     bookButton.innerHTML = `
         <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
