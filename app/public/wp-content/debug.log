@@ -1,0 +1,3984 @@
+[14-Feb-2025 21:37:10 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:37:10 UTC] Fetching services for session type from: https://api.mindbodyonline.com/public/v6/sale/services?sessionTypeId=23
+[14-Feb-2025 21:37:10 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:37:11 UTC] GetServices Response: Array
+(
+    [PaginationResponse] => Array
+        (
+            [RequestedLimit] => 100
+            [RequestedOffset] => 0
+            [PageSize] => 8
+            [TotalResults] => 8
+        )
+
+    [Services] => Array
+        (
+            [0] => Array
+                (
+                    [Price] => 200
+                    [OnlinePrice] => 200
+                    [TaxIncluded] => 0
+                    [ProgramId] => 10
+                    [TaxRate] => 0
+                    [ProductId] => 1192
+                    [Id] => 1192
+                    [Name] => Six Week Bootcamp
+                    [Count] => 6
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => Series
+                    [ExpirationType] => DateOfClientFirstVisit
+                    [ExpirationUnit] => Days
+                    [ExpirationLength] => 60
+                    [RevenueCategory] => GL 1234 - Bootcamps
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => High
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 
+                    [Program] => Boot Camp
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+            [1] => Array
+                (
+                    [Price] => 0
+                    [OnlinePrice] => 0
+                    [TaxIncluded] => 0
+                    [ProgramId] => 31
+                    [TaxRate] => 0
+                    [ProductId] => 1425
+                    [Id] => 1425
+                    [Name] => WellPass
+                    [Count] => 1
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => DropIn
+                    [ExpirationType] => SaleDate
+                    [ExpirationUnit] => Days
+                    [ExpirationLength] => 1
+                    [RevenueCategory] => Membership - Basic
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => Medium
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 1
+                    [Program] => Category 1
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+            [2] => Array
+                (
+                    [Price] => 100
+                    [OnlinePrice] => 100
+                    [TaxIncluded] => 0
+                    [ProgramId] => 2
+                    [TaxRate] => 0
+                    [ProductId] => 1408
+                    [Id] => 1408
+                    [Name] => 90 min Reservation
+                    [Count] => 1
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => DropIn
+                    [ExpirationType] => 
+                    [ExpirationUnit] => Days
+                    [ExpirationLength] => 365
+                    [RevenueCategory] => GL 1234 - Bootcamps
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => Medium
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 
+                    [Program] => Court Rentals
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+            [3] => Array
+                (
+                    [Price] => 0
+                    [OnlinePrice] => 0
+                    [TaxIncluded] => 0
+                    [ProgramId] => 1
+                    [TaxRate] => 0
+                    [ProductId] => 1418
+                    [Id] => 1418
+                    [Name] => Personal Training Consult
+                    [Count] => 1
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => DropIn
+                    [ExpirationType] => 
+                    [ExpirationUnit] => Days
+                    [ExpirationLength] => 365
+                    [RevenueCategory] => GL 1234 - Bootcamps
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => Medium
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 
+                    [Program] => Personal Training
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+            [4] => Array
+                (
+                    [Price] => 130
+                    [OnlinePrice] => 130
+                    [TaxIncluded] => 0
+                    [ProgramId] => 26
+                    [TaxRate] => 0
+                    [ProductId] => 1357
+                    [Id] => 123456789
+                    [Name] => 1 Month Unlimited
+                    [Count] => 99999
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => Unlimited
+                    [ExpirationType] => SaleDate
+                    [ExpirationUnit] => Days
+                    [ExpirationLength] => 30
+                    [RevenueCategory] => Group Ex. Classes
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => Medium
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 
+                    [Program] => Yoga
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+            [5] => Array
+                (
+                    [Price] => 100
+                    [OnlinePrice] => 100
+                    [TaxIncluded] => 0
+                    [ProgramId] => 26
+                    [TaxRate] => 0.08
+                    [ProductId] => 1364
+                    [Id] => 1364
+                    [Name] => 10 Class Card
+                    [Count] => 10
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => Series
+                    [ExpirationType] => SaleDate
+                    [ExpirationUnit] => Months
+                    [ExpirationLength] => 12
+                    [RevenueCategory] => Group Ex. Classes
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => Medium
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 
+                    [Program] => Yoga
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+            [6] => Array
+                (
+                    [Price] => 55
+                    [OnlinePrice] => 55
+                    [TaxIncluded] => 0
+                    [ProgramId] => 26
+                    [TaxRate] => 0
+                    [ProductId] => 1300
+                    [Id] => 1300
+                    [Name] => 5 Class Card
+                    [Count] => 5
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => Series
+                    [ExpirationType] => SaleDate
+                    [ExpirationUnit] => Days
+                    [ExpirationLength] => 180
+                    [RevenueCategory] => Group Ex. Classes
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => Medium
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 
+                    [Program] => Yoga
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+            [7] => Array
+                (
+                    [Price] => 195
+                    [OnlinePrice] => 195
+                    [TaxIncluded] => 0
+                    [ProgramId] => 26
+                    [TaxRate] => 0
+                    [ProductId] => 1419
+                    [Id] => 1419
+                    [Name] => World Membership
+                    [Count] => 99999
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => Unlimited
+                    [ExpirationType] => SaleDate
+                    [ExpirationUnit] => Days
+                    [ExpirationLength] => 365
+                    [RevenueCategory] => Membership - Basic
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => Medium
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 
+                    [Program] => Yoga
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+        )
+
+)
+
+[14-Feb-2025 21:37:16 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:37:16 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:37:18 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:37:18 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:37:19 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:37:20 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:37:20 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function check_appointment_availability() in /Users/codytownsend/Local Sites/the-tox-technique/app/public/wp-content/plugins/mindbody-booking/mindbody-booking.php:169
+Stack trace:
+#0 /Users/codytownsend/Local Sites/the-tox-technique/app/public/wp-includes/class-wp-hook.php(324): mindbody_verify_availability('')
+#1 /Users/codytownsend/Local Sites/the-tox-technique/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#2 /Users/codytownsend/Local Sites/the-tox-technique/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#3 /Users/codytownsend/Local Sites/the-tox-technique/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_mindbod...')
+#4 {main}
+  thrown in /Users/codytownsend/Local Sites/the-tox-technique/app/public/wp-content/plugins/mindbody-booking/mindbody-booking.php on line 169
+[14-Feb-2025 21:37:20 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:46:22 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:46:23 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:46:25 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:46:25 UTC] Session Types Response: Array
+(
+    [PaginationResponse] => Array
+        (
+            [RequestedLimit] => 100
+            [RequestedOffset] => 0
+            [PageSize] => 96
+            [TotalResults] => 96
+        )
+
+    [SessionTypes] => Array
+        (
+            [0] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 4
+                    [Name] => Yoga
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 10
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [1] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 8
+                    [Name] => Pilates
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 10
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [2] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 9
+                    [Name] => Aerobics
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 12
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [3] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 10
+                    [Name] => Cycling
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 12
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [4] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 15
+                    [Name] => Bank Service Charges
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 15
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [5] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 23
+                    [Name] => Nutrition Consultation
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 1
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [6] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 25
+                    [Name] => Educational
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 10
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [7] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 41
+                    [Name] => Brazilian Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [8] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 42
+                    [Name] => Back Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [9] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 43
+                    [Name] => Arm Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [10] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 44
+                    [Name] => Kinesis
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 10
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [11] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 48
+                    [Name] => Childcare
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 12
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [12] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 58
+                    [Name] => Sports Conditioning
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 10
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [13] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 68
+                    [Name] => Yoga 
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [14] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 70
+                    [Name] => Pilates 
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [15] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 45
+                    [StaffTimeLength] => 
+                    [Id] => 114
+                    [Name] => Express Facial
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 6
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [16] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 90
+                    [StaffTimeLength] => 
+                    [Id] => 115
+                    [Name] => HydraFacial
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 6
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [17] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 75
+                    [StaffTimeLength] => 
+                    [Id] => 116
+                    [Name] => Back Facial
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 6
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [18] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 50
+                    [StaffTimeLength] => 
+                    [Id] => 127
+                    [Name] => Skin Renewing Peel
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 6
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [19] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 75
+                    [StaffTimeLength] => 
+                    [Id] => 128
+                    [Name] => Epicurean Facial
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 6
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [20] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 70
+                    [StaffTimeLength] => 
+                    [Id] => 131
+                    [Name] => Teen Facial
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 6
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [21] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 132
+                    [Name] => DermaSweep
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 6
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [22] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 140
+                    [Name] => Face Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [23] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 15
+                    [StaffTimeLength] => 
+                    [Id] => 149
+                    [Name] => Brow Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [24] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 150
+                    [Name] => Lower Leg Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [25] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 90
+                    [StaffTimeLength] => 
+                    [Id] => 151
+                    [Name] => Full Leg Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [26] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 152
+                    [Name] => Kinesis One on One
+                    [OnlineDescription] => One on One Private Training on Kinesis
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [27] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 153
+                    [Name] => Performance Coaching-30 minutes
+                    [OnlineDescription] => Luke Special Rate $70.00.
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [28] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 154
+                    [Name] => Performance Coaching-30 minutes-special rate
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [29] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 155
+                    [Name] => Performance Coaching Standard
+                    [OnlineDescription] => Luke Special Rate #1
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [30] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 156
+                    [Name] => PT - Bronze - 1/2hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [31] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 157
+                    [Name] => PT - Bronze - 1hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [32] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 158
+                    [Name] => PT - Bronze - Partner Training
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [33] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 159
+                    [Name] => PT - Gold - 1/2hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [34] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 160
+                    [Name] => PT - Gold - 1hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [35] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 161
+                    [Name] => PT - Gold - Partner Training
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [36] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 163
+                    [Name] => PT - Platinum - 1/2hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [37] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 164
+                    [Name] => PT - Platinum - 1hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [38] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 165
+                    [Name] => PT - Platinum - Partner Training
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [39] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 166
+                    [Name] => PT - Silver - 1/2hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [40] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 167
+                    [Name] => PT - Silver - 1hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [41] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 168
+                    [Name] => PT - Silver - Partner Training
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [42] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 169
+                    [Name] => Train For Life - 24-48 Sessions
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [43] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 170
+                    [Name] => Train For Life - Single Sessions - 1-23
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [44] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 171
+                    [Name] => Trainer Use - Personal Training
+                    [OnlineDescription] => For training and mentoring of new trainers
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [45] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 172
+                    [Name] => New Member Experience
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [46] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 174
+                    [Name] => Performance Coach - Elite
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [47] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 175
+                    [Name] => Lukes Special Rate # 1 $72.00
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [48] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 176
+                    [Name] => Lukes Special Rate $70.00
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [49] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 180
+                    [Name] => Bikini Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [50] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 15
+                    [StaffTimeLength] => 
+                    [Id] => 181
+                    [Name] => Lip Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [51] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 191
+                    [Name] => Current Client Limited Renewal @ $80.00- Platinum
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [52] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 200
+                    [Name] => 60 Min 1on1
+                    [OnlineDescription] => A 60 minute session that will blast your muscles and get you ready for that bathing suit!
+Cost is $400 up front!
+Cancelation policy is 48 hours for a full refund.
+This is Abby's favoirte appointment!
+                    [NumDeducted] => 1
+                    [ProgramId] => 1
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [53] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 202
+                    [Name] => Personal Training Duet
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 5
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [54] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 20
+                    [StaffTimeLength] => 
+                    [Id] => 203
+                    [Name] => Facility Tour
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 14
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [55] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 20
+                    [StaffTimeLength] => 
+                    [Id] => 204
+                    [Name] => Membership Consultation
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 14
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [56] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 205
+                    [Name] => Personal Training Small Group
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 5
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [57] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 206
+                    [Name] => Les Mills
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [58] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 207
+                    [Name] => Spinning
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [59] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 208
+                    [Name] => Bootcamp
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 10
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [60] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 211
+                    [Name] => Fitness Assessments
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 22
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [61] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 212
+                    [Name] => Summer Session
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 23
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [62] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 90
+                    [StaffTimeLength] => 
+                    [Id] => 214
+                    [Name] => 90 min Reservation
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 2
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [63] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 215
+                    [Name] => MBU Courses
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 24
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [64] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 216
+                    [Name] => Morning Workshop
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 25
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [65] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 217
+                    [Name] => Evening Workshop
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 25
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [66] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 233
+                    [Name] => Beg Private Swim Lesson
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 17
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [67] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 234
+                    [Name] => Beg Swim Lessons w/ a Friend
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 17
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [68] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 235
+                    [Name] => Beg Group Swim Lessons (up to 4)
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 17
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [69] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 236
+                    [Name] => Adv Group Swim Lessons (up to 4)
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 17
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [70] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 237
+                    [Name] => Adv Private Swim Lesson
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 17
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [71] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 239
+                    [Name] => Adv Swim Lessons w/ a Friend
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 17
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [72] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 240
+                    [Name] => Acupuncture-Consultation
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 3
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [73] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 242
+                    [Name] => Group Swim Lessons
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [74] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 35
+                    [StaffTimeLength] => 
+                    [Id] => 243
+                    [Name] => Underarm Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [75] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 244
+                    [Name] => Pain Management
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 3
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [76] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 40
+                    [StaffTimeLength] => 
+                    [Id] => 245
+                    [Name] => 30-Swedish-Massage
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 4
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [77] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 70
+                    [StaffTimeLength] => 
+                    [Id] => 246
+                    [Name] => 60-Swedish-Massage
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 4
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [78] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 100
+                    [StaffTimeLength] => 
+                    [Id] => 247
+                    [Name] => 90-Swedish-Massage
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 4
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [79] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 70
+                    [StaffTimeLength] => 
+                    [Id] => 248
+                    [Name] => Deep Tissue-60
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 4
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [80] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 100
+                    [StaffTimeLength] => 
+                    [Id] => 249
+                    [Name] => Deep Tissue-90
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 4
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [81] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 250
+                    [Name] => Hatha Yoga
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 27
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [82] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 251
+                    [Name] => Work out of the day
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [83] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 252
+                    [Name] => Bikram
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 27
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [84] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 253
+                    [Name] => Swim
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [85] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 254
+                    [Name] => Kickboxing
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [86] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 257
+                    [Name] => Explosive Speed Training
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [87] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 258
+                    [Name] => Goalie Training
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [88] => Array
+                (
+                    [Type] => Resource
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 259
+                    [Name] => Tennis Lesson
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 30
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [89] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 262
+                    [Name] => Intro WOD
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 23
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [90] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 264
+                    [Name] => Personal Training Consult
+                    [OnlineDescription] => <div>Pre-training consult to review goals and expectations of training sessions</div>
+                    [NumDeducted] => 1
+                    [ProgramId] => 1
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [91] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 265
+                    [Name] => 60 min Reservation
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 2
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [92] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 120
+                    [StaffTimeLength] => 
+                    [Id] => 266
+                    [Name] => 120 min Reservation
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 2
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [93] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 267
+                    [Name] => 60 min 2on1
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 1
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [94] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 268
+                    [Name] => 60 min 3on1
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 1
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [95] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 270
+                    [Name] => test
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 31
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+        )
+
+)
+
+[14-Feb-2025 21:46:25 UTC] Fetching sale services from: https://api.mindbodyonline.com/public/v6/sale/services?request.hideRelatedPrograms=false&request.includeDiscontinued=false&request.includeSaleInContractOnly=false&request.sellOnline=false&request.sessionTypeIds%5B0%5D=4&request.sessionTypeIds%5B1%5D=8&request.sessionTypeIds%5B2%5D=9&request.sessionTypeIds%5B3%5D=10&request.sessionTypeIds%5B4%5D=15&request.sessionTypeIds%5B5%5D=23&request.sessionTypeIds%5B6%5D=25&request.sessionTypeIds%5B7%5D=41&request.sessionTypeIds%5B8%5D=42&request.sessionTypeIds%5B9%5D=43&request.sessionTypeIds%5B10%5D=44&request.sessionTypeIds%5B11%5D=48&request.sessionTypeIds%5B12%5D=58&request.sessionTypeIds%5B13%5D=68&request.sessionTypeIds%5B14%5D=70&request.sessionTypeIds%5B15%5D=114&request.sessionTypeIds%5B16%5D=115&request.sessionTypeIds%5B17%5D=116&request.sessionTypeIds%5B18%5D=127&request.sessionTypeIds%5B19%5D=128&request.sessionTypeIds%5B20%5D=131&request.sessionTypeIds%5B21%5D=132&request.sessionTypeIds%5B22%5D=140&request.sessionTypeIds%5B23%5D=149&request.sessionTypeIds%5B24%5D=150&request.sessionTypeIds%5B25%5D=151&request.sessionTypeIds%5B26%5D=152&request.sessionTypeIds%5B27%5D=153&request.sessionTypeIds%5B28%5D=154&request.sessionTypeIds%5B29%5D=155&request.sessionTypeIds%5B30%5D=156&request.sessionTypeIds%5B31%5D=157&request.sessionTypeIds%5B32%5D=158&request.sessionTypeIds%5B33%5D=159&request.sessionTypeIds%5B34%5D=160&request.sessionTypeIds%5B35%5D=161&request.sessionTypeIds%5B36%5D=163&request.sessionTypeIds%5B37%5D=164&request.sessionTypeIds%5B38%5D=165&request.sessionTypeIds%5B39%5D=166&request.sessionTypeIds%5B40%5D=167&request.sessionTypeIds%5B41%5D=168&request.sessionTypeIds%5B42%5D=169&request.sessionTypeIds%5B43%5D=170&request.sessionTypeIds%5B44%5D=171&request.sessionTypeIds%5B45%5D=172&request.sessionTypeIds%5B46%5D=174&request.sessionTypeIds%5B47%5D=175&request.sessionTypeIds%5B48%5D=176&request.sessionTypeIds%5B49%5D=180&request.sessionTypeIds%5B50%5D=181&request.sessionTypeIds%5B51%5D=191&request.sessionTypeIds%5B52%5D=200&request.sessionTypeIds%5B53%5D=202&request.sessionTypeIds%5B54%5D=203&request.sessionTypeIds%5B55%5D=204&request.sessionTypeIds%5B56%5D=205&request.sessionTypeIds%5B57%5D=206&request.sessionTypeIds%5B58%5D=207&request.sessionTypeIds%5B59%5D=208&request.sessionTypeIds%5B60%5D=211&request.sessionTypeIds%5B61%5D=212&request.sessionTypeIds%5B62%5D=214&request.sessionTypeIds%5B63%5D=215&request.sessionTypeIds%5B64%5D=216&request.sessionTypeIds%5B65%5D=217&request.sessionTypeIds%5B66%5D=233&request.sessionTypeIds%5B67%5D=234&request.sessionTypeIds%5B68%5D=235&request.sessionTypeIds%5B69%5D=236&request.sessionTypeIds%5B70%5D=237&request.sessionTypeIds%5B71%5D=239&request.sessionTypeIds%5B72%5D=240&request.sessionTypeIds%5B73%5D=242&request.sessionTypeIds%5B74%5D=243&request.sessionTypeIds%5B75%5D=244&request.sessionTypeIds%5B76%5D=245&request.sessionTypeIds%5B77%5D=246&request.sessionTypeIds%5B78%5D=247&request.sessionTypeIds%5B79%5D=248&request.sessionTypeIds%5B80%5D=249&request.sessionTypeIds%5B81%5D=250&request.sessionTypeIds%5B82%5D=251&request.sessionTypeIds%5B83%5D=252&request.sessionTypeIds%5B84%5D=253&request.sessionTypeIds%5B85%5D=254&request.sessionTypeIds%5B86%5D=257&request.sessionTypeIds%5B87%5D=258&request.sessionTypeIds%5B88%5D=259&request.sessionTypeIds%5B89%5D=262&request.sessionTypeIds%5B90%5D=264&request.sessionTypeIds%5B91%5D=265&request.sessionTypeIds%5B92%5D=266&request.sessionTypeIds%5B93%5D=267&request.sessionTypeIds%5B94%5D=268&request.sessionTypeIds%5B95%5D=270
+[14-Feb-2025 21:46:26 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:46:26 UTC] Sale Services Response: Array
+(
+    [PaginationResponse] => Array
+        (
+            [RequestedLimit] => 100
+            [RequestedOffset] => 0
+            [PageSize] => 7
+            [TotalResults] => 7
+        )
+
+    [Services] => Array
+        (
+            [0] => Array
+                (
+                    [Price] => 0
+                    [OnlinePrice] => 0
+                    [TaxIncluded] => 0
+                    [ProgramId] => 31
+                    [TaxRate] => 0
+                    [ProductId] => 1425
+                    [Id] => 1425
+                    [Name] => WellPass
+                    [Count] => 1
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => DropIn
+                    [ExpirationType] => SaleDate
+                    [ExpirationUnit] => Days
+                    [ExpirationLength] => 1
+                    [RevenueCategory] => Membership - Basic
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => Medium
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 1
+                    [Program] => Category 1
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+            [1] => Array
+                (
+                    [Price] => 100
+                    [OnlinePrice] => 100
+                    [TaxIncluded] => 0
+                    [ProgramId] => 2
+                    [TaxRate] => 0
+                    [ProductId] => 1408
+                    [Id] => 1408
+                    [Name] => 90 min Reservation
+                    [Count] => 1
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => DropIn
+                    [ExpirationType] => 
+                    [ExpirationUnit] => Days
+                    [ExpirationLength] => 365
+                    [RevenueCategory] => GL 1234 - Bootcamps
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => Medium
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 
+                    [Program] => Court Rentals
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+            [2] => Array
+                (
+                    [Price] => 0
+                    [OnlinePrice] => 0
+                    [TaxIncluded] => 0
+                    [ProgramId] => 1
+                    [TaxRate] => 0
+                    [ProductId] => 1418
+                    [Id] => 1418
+                    [Name] => Personal Training Consult
+                    [Count] => 1
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => DropIn
+                    [ExpirationType] => 
+                    [ExpirationUnit] => Days
+                    [ExpirationLength] => 365
+                    [RevenueCategory] => GL 1234 - Bootcamps
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => Medium
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 
+                    [Program] => Personal Training
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+            [3] => Array
+                (
+                    [Price] => 130
+                    [OnlinePrice] => 130
+                    [TaxIncluded] => 0
+                    [ProgramId] => 26
+                    [TaxRate] => 0
+                    [ProductId] => 1357
+                    [Id] => 123456789
+                    [Name] => 1 Month Unlimited
+                    [Count] => 99999
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => Unlimited
+                    [ExpirationType] => SaleDate
+                    [ExpirationUnit] => Days
+                    [ExpirationLength] => 30
+                    [RevenueCategory] => Group Ex. Classes
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => Medium
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 
+                    [Program] => Yoga
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+            [4] => Array
+                (
+                    [Price] => 100
+                    [OnlinePrice] => 100
+                    [TaxIncluded] => 0
+                    [ProgramId] => 26
+                    [TaxRate] => 0.08
+                    [ProductId] => 1364
+                    [Id] => 1364
+                    [Name] => 10 Class Card
+                    [Count] => 10
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => Series
+                    [ExpirationType] => SaleDate
+                    [ExpirationUnit] => Months
+                    [ExpirationLength] => 12
+                    [RevenueCategory] => Group Ex. Classes
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => Medium
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 
+                    [Program] => Yoga
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+            [5] => Array
+                (
+                    [Price] => 55
+                    [OnlinePrice] => 55
+                    [TaxIncluded] => 0
+                    [ProgramId] => 26
+                    [TaxRate] => 0
+                    [ProductId] => 1300
+                    [Id] => 1300
+                    [Name] => 5 Class Card
+                    [Count] => 5
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => Series
+                    [ExpirationType] => SaleDate
+                    [ExpirationUnit] => Days
+                    [ExpirationLength] => 180
+                    [RevenueCategory] => Group Ex. Classes
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => Medium
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 
+                    [Program] => Yoga
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+            [6] => Array
+                (
+                    [Price] => 195
+                    [OnlinePrice] => 195
+                    [TaxIncluded] => 0
+                    [ProgramId] => 26
+                    [TaxRate] => 0
+                    [ProductId] => 1419
+                    [Id] => 1419
+                    [Name] => World Membership
+                    [Count] => 99999
+                    [SellOnline] => 1
+                    [SaleInContractOnly] => 
+                    [Type] => Unlimited
+                    [ExpirationType] => SaleDate
+                    [ExpirationUnit] => Days
+                    [ExpirationLength] => 365
+                    [RevenueCategory] => Membership - Basic
+                    [MembershipId] => 
+                    [SellAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [UseAtLocationIds] => Array
+                        (
+                            [0] => 1
+                            [1] => 2
+                        )
+
+                    [Priority] => Medium
+                    [IsIntroOffer] => 
+                    [IntroOfferType] => 
+                    [IsThirdPartyDiscountPricing] => 
+                    [Program] => Yoga
+                    [Discontinued] => 
+                    [RestrictToMembershipIds] => 
+                    [ApplyMemberDiscountsOfMembershipIds] => 
+                )
+
+        )
+
+)
+
+[14-Feb-2025 21:46:27 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:46:27 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:46:28 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:46:28 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function check_appointment_availability() in /Users/codytownsend/Local Sites/the-tox-technique/app/public/wp-content/plugins/mindbody-booking/mindbody-booking.php:169
+Stack trace:
+#0 /Users/codytownsend/Local Sites/the-tox-technique/app/public/wp-includes/class-wp-hook.php(324): mindbody_verify_availability('')
+#1 /Users/codytownsend/Local Sites/the-tox-technique/app/public/wp-includes/class-wp-hook.php(348): WP_Hook->apply_filters('', Array)
+#2 /Users/codytownsend/Local Sites/the-tox-technique/app/public/wp-includes/plugin.php(517): WP_Hook->do_action(Array)
+#3 /Users/codytownsend/Local Sites/the-tox-technique/app/public/wp-admin/admin-ajax.php(192): do_action('wp_ajax_mindbod...')
+#4 {main}
+  thrown in /Users/codytownsend/Local Sites/the-tox-technique/app/public/wp-content/plugins/mindbody-booking/mindbody-booking.php on line 169
+[14-Feb-2025 21:46:28 UTC] 🚀 Mindbody Booking Plugin Loaded
+[14-Feb-2025 21:46:28 UTC] Session Types Response: Array
+(
+    [PaginationResponse] => Array
+        (
+            [RequestedLimit] => 100
+            [RequestedOffset] => 0
+            [PageSize] => 96
+            [TotalResults] => 96
+        )
+
+    [SessionTypes] => Array
+        (
+            [0] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 4
+                    [Name] => Yoga
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 10
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [1] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 8
+                    [Name] => Pilates
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 10
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [2] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 9
+                    [Name] => Aerobics
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 12
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [3] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 10
+                    [Name] => Cycling
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 12
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [4] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 15
+                    [Name] => Bank Service Charges
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 15
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [5] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 23
+                    [Name] => Nutrition Consultation
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 1
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [6] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 25
+                    [Name] => Educational
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 10
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [7] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 41
+                    [Name] => Brazilian Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [8] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 42
+                    [Name] => Back Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [9] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 43
+                    [Name] => Arm Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [10] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 44
+                    [Name] => Kinesis
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 10
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [11] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 48
+                    [Name] => Childcare
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 12
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [12] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 58
+                    [Name] => Sports Conditioning
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 10
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [13] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 68
+                    [Name] => Yoga 
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [14] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 70
+                    [Name] => Pilates 
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [15] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 45
+                    [StaffTimeLength] => 
+                    [Id] => 114
+                    [Name] => Express Facial
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 6
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [16] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 90
+                    [StaffTimeLength] => 
+                    [Id] => 115
+                    [Name] => HydraFacial
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 6
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [17] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 75
+                    [StaffTimeLength] => 
+                    [Id] => 116
+                    [Name] => Back Facial
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 6
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [18] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 50
+                    [StaffTimeLength] => 
+                    [Id] => 127
+                    [Name] => Skin Renewing Peel
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 6
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [19] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 75
+                    [StaffTimeLength] => 
+                    [Id] => 128
+                    [Name] => Epicurean Facial
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 6
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [20] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 70
+                    [StaffTimeLength] => 
+                    [Id] => 131
+                    [Name] => Teen Facial
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 6
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [21] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 132
+                    [Name] => DermaSweep
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 6
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [22] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 140
+                    [Name] => Face Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [23] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 15
+                    [StaffTimeLength] => 
+                    [Id] => 149
+                    [Name] => Brow Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [24] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 150
+                    [Name] => Lower Leg Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [25] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 90
+                    [StaffTimeLength] => 
+                    [Id] => 151
+                    [Name] => Full Leg Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [26] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 152
+                    [Name] => Kinesis One on One
+                    [OnlineDescription] => One on One Private Training on Kinesis
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [27] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 153
+                    [Name] => Performance Coaching-30 minutes
+                    [OnlineDescription] => Luke Special Rate $70.00.
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [28] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 154
+                    [Name] => Performance Coaching-30 minutes-special rate
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [29] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 155
+                    [Name] => Performance Coaching Standard
+                    [OnlineDescription] => Luke Special Rate #1
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [30] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 156
+                    [Name] => PT - Bronze - 1/2hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [31] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 157
+                    [Name] => PT - Bronze - 1hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [32] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 158
+                    [Name] => PT - Bronze - Partner Training
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [33] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 159
+                    [Name] => PT - Gold - 1/2hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [34] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 160
+                    [Name] => PT - Gold - 1hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [35] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 161
+                    [Name] => PT - Gold - Partner Training
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [36] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 163
+                    [Name] => PT - Platinum - 1/2hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [37] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 164
+                    [Name] => PT - Platinum - 1hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [38] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 165
+                    [Name] => PT - Platinum - Partner Training
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [39] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 166
+                    [Name] => PT - Silver - 1/2hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [40] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 167
+                    [Name] => PT - Silver - 1hr
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [41] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 168
+                    [Name] => PT - Silver - Partner Training
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [42] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 169
+                    [Name] => Train For Life - 24-48 Sessions
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [43] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 170
+                    [Name] => Train For Life - Single Sessions - 1-23
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [44] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 171
+                    [Name] => Trainer Use - Personal Training
+                    [OnlineDescription] => For training and mentoring of new trainers
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [45] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 172
+                    [Name] => New Member Experience
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [46] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 174
+                    [Name] => Performance Coach - Elite
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [47] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 175
+                    [Name] => Lukes Special Rate # 1 $72.00
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [48] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 176
+                    [Name] => Lukes Special Rate $70.00
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [49] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 180
+                    [Name] => Bikini Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [50] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 15
+                    [StaffTimeLength] => 
+                    [Id] => 181
+                    [Name] => Lip Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [51] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 191
+                    [Name] => Current Client Limited Renewal @ $80.00- Platinum
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 8
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [52] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 200
+                    [Name] => 60 Min 1on1
+                    [OnlineDescription] => A 60 minute session that will blast your muscles and get you ready for that bathing suit!
+Cost is $400 up front!
+Cancelation policy is 48 hours for a full refund.
+This is Abby's favoirte appointment!
+                    [NumDeducted] => 1
+                    [ProgramId] => 1
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [53] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 202
+                    [Name] => Personal Training Duet
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 5
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [54] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 20
+                    [StaffTimeLength] => 
+                    [Id] => 203
+                    [Name] => Facility Tour
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 14
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [55] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 20
+                    [StaffTimeLength] => 
+                    [Id] => 204
+                    [Name] => Membership Consultation
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 14
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [56] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 205
+                    [Name] => Personal Training Small Group
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 5
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [57] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 206
+                    [Name] => Les Mills
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [58] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 207
+                    [Name] => Spinning
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [59] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 208
+                    [Name] => Bootcamp
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 10
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [60] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 211
+                    [Name] => Fitness Assessments
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 22
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [61] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 212
+                    [Name] => Summer Session
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 23
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [62] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 90
+                    [StaffTimeLength] => 
+                    [Id] => 214
+                    [Name] => 90 min Reservation
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 2
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [63] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 215
+                    [Name] => MBU Courses
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 24
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [64] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 216
+                    [Name] => Morning Workshop
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 25
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [65] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 217
+                    [Name] => Evening Workshop
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 25
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [66] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 233
+                    [Name] => Beg Private Swim Lesson
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 17
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [67] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 234
+                    [Name] => Beg Swim Lessons w/ a Friend
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 17
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [68] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 235
+                    [Name] => Beg Group Swim Lessons (up to 4)
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 17
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [69] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 236
+                    [Name] => Adv Group Swim Lessons (up to 4)
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 17
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [70] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 237
+                    [Name] => Adv Private Swim Lesson
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 17
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [71] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 239
+                    [Name] => Adv Swim Lessons w/ a Friend
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 17
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [72] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 240
+                    [Name] => Acupuncture-Consultation
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 3
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [73] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 242
+                    [Name] => Group Swim Lessons
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [74] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 35
+                    [StaffTimeLength] => 
+                    [Id] => 243
+                    [Name] => Underarm Wax
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 7
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [75] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 244
+                    [Name] => Pain Management
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 3
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [76] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 40
+                    [StaffTimeLength] => 
+                    [Id] => 245
+                    [Name] => 30-Swedish-Massage
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 4
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [77] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 70
+                    [StaffTimeLength] => 
+                    [Id] => 246
+                    [Name] => 60-Swedish-Massage
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 4
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [78] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 100
+                    [StaffTimeLength] => 
+                    [Id] => 247
+                    [Name] => 90-Swedish-Massage
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 4
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [79] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 70
+                    [StaffTimeLength] => 
+                    [Id] => 248
+                    [Name] => Deep Tissue-60
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 4
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [80] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 100
+                    [StaffTimeLength] => 
+                    [Id] => 249
+                    [Name] => Deep Tissue-90
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 4
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [81] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 250
+                    [Name] => Hatha Yoga
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 27
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [82] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 251
+                    [Name] => Work out of the day
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [83] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 252
+                    [Name] => Bikram
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 27
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [84] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 253
+                    [Name] => Swim
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [85] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 254
+                    [Name] => Kickboxing
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [86] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 257
+                    [Name] => Explosive Speed Training
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [87] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 258
+                    [Name] => Goalie Training
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 26
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [88] => Array
+                (
+                    [Type] => Resource
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 259
+                    [Name] => Tennis Lesson
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 30
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [89] => Array
+                (
+                    [Type] => Enrollment
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 262
+                    [Name] => Intro WOD
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 23
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [90] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 30
+                    [StaffTimeLength] => 
+                    [Id] => 264
+                    [Name] => Personal Training Consult
+                    [OnlineDescription] => <div>Pre-training consult to review goals and expectations of training sessions</div>
+                    [NumDeducted] => 1
+                    [ProgramId] => 1
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [91] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 265
+                    [Name] => 60 min Reservation
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 2
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [92] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 120
+                    [StaffTimeLength] => 
+                    [Id] => 266
+                    [Name] => 120 min Reservation
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 2
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [93] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 267
+                    [Name] => 60 min 2on1
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 1
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [94] => Array
+                (
+                    [Type] => Appointment
+                    [DefaultTimeLength] => 60
+                    [StaffTimeLength] => 
+                    [Id] => 268
+                    [Name] => 60 min 3on1
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 1
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+            [95] => Array
+                (
+                    [Type] => Class
+                    [DefaultTimeLength] => 
+                    [StaffTimeLength] => 
+                    [Id] => 270
+                    [Name] => test
+                    [OnlineDescription] => 
+                    [NumDeducted] => 1
+                    [ProgramId] => 31
+                    [Category] => 
+                    [CategoryId] => 
+                    [Subcategory] => 
+                    [SubcategoryId] => 
+                    [AvailableForAddOn] => 
+                )
+
+        )
+
+)
+

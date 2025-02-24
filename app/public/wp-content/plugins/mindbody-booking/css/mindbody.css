@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-color: #fff;
+    color: #000;
+}
+
+#mindbody-booking-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+button {
+    transition: background 0.2s ease-in-out;
+}
