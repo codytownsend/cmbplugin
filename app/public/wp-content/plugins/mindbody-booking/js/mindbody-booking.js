@@ -2,6 +2,13 @@ document.addEventListener("DOMContentLoaded", function() {
     initializeBookingWidget();
 });
 
+// Clean logging function to reduce console noise
+function log(message) {
+    if (window.mindbody_booking?.debug) {
+        console.log('[Mindbody] ' + message);
+    }
+}
+
 // Global state
 let selectedService = null;
 let selectedStaff = null;
@@ -11,6 +18,43 @@ let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let isAuthenticated = false;
 let cartId = null;
+
+// Global session types storage
+window.sessionTypes = [];
+window.sessionTypesMap = {};
+
+// Step 1: Fetch appointable services (session types) first
+async function fetchAppointableServices() {
+    try {
+        log('Fetching appointable services...');
+        const response = await fetch(mindbody_booking.ajax_url + "?action=mindbody_get_appointable_services");
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.data?.message || 'Failed to fetch services');
+        }
+        
+        // Store session types globally
+        window.sessionTypes = data.data;
+        
+        // Create a map for easy lookup
+        window.sessionTypesMap = {};
+        window.sessionTypes.forEach(type => {
+            window.sessionTypesMap[type.Id] = type;
+        });
+        
+        log(`Loaded ${window.sessionTypes.length} appointable services`);
+        return true;
+    } catch (error) {
+        console.error('Error fetching appointable services:', error);
+        return false;
+    }
+}
 
 async function checkExistingAuth() {
     try {
@@ -49,26 +93,31 @@ async function checkAuthAndCart() {
         if (data.success) {
             // User is logged into WordPress and we have their Mindbody info
             isAuthenticated = true;
-            window.clientInfo = data.client;
+            window.clientInfo = data.data.client || data.data.wp_user;
             localStorage.setItem('mindbody_auth', 'true');
-            localStorage.setItem('mindbody_client_info', JSON.stringify(data.client));
+            localStorage.setItem('mindbody_client_info', JSON.stringify(window.clientInfo));
             
             // Check for stored cart
-            const storedCart = localStorage.getItem('mindbody_cart');
-            if (storedCart) {
-                const cart = JSON.parse(storedCart);
+            const cart = getCartItems();
+            
+            if (cart.items && cart.items.length > 0) {
                 const isAvailable = await verifyCartAvailability(cart);
                 
                 if (isAvailable) {
-                    // Restore the cart state
-                    selectedService = cart.service;
-                    selectedStaff = cart.staff;
-                    selectedDate = cart.date;
-                    selectedDateTime = cart.time;
+                    // Restore the first item's state for the "Back" button
+                    if (cart.items[0]) {
+                        selectedService = cart.items[0].service;
+                        selectedStaff = cart.items[0].staff;
+                        selectedDate = cart.items[0].date;
+                        selectedDateTime = cart.items[0].time;
+                    }
                     
                     // Take them to checkout
                     goToCheckout();
                     return true;
+                } else {
+                    // If items are no longer available, clear the cart
+                    localStorage.removeItem('mindbody_cart');
                 }
             }
         } else {
@@ -135,149 +184,52 @@ async function verifyCartAvailability(cart) {
     }
 }
 
-async function fetchSaleServices() {
-    try {
-        const response = await fetch(mindbody_booking.ajax_url + "?action=test_sale_services_by_session_types");
-        const data = await response.json();
-        if (data.success) {
-            window.saleServices = data.data;
-            console.log("Fetched sale services:", window.saleServices);
-        } else {
-            window.saleServices = [];
-        }
-    } catch (error) {
-        console.error("Error fetching sale services:", error);
-        window.saleServices = [];
-    }
-}
-
+// Updated initialization function to follow the correct flow
 async function initializeBookingWidget() {
     const container = document.getElementById("mindbody-booking-widget");
     if (!container) return;
     
     container.classList.add("font-sans");
     
-    // Fetch sale services for pricing
-    await fetchSaleServices();
+    // Show loading state
+    container.innerHTML = `
+        <div class="animate-pulse space-y-4">
+            ${Array(3).fill().map(() => `
+                <div class="bg-white p-6 pt-0 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex space-x-4">
+                        <div class="flex-1 space-y-4 py-1">
+                            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                            <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+                        </div>
+                        <div class="w-24 h-8 bg-gray-200 rounded"></div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
     
-    // Check auth and then load bookable items
+    // Step 1: Fetch appointable services (session types with prices)
+    await fetchAppointableServices();
+    
+    // Step 2: Check authentication state
     const isAuthed = await checkExistingAuth();
     if (isAuthed) {
         const hasExistingCart = await checkAuthAndCart();
         if (!hasExistingCart) {
+            // Step 3: Fetch bookable items
             fetchBookableItems();
         }
     } else {
+        // Step 3: Fetch bookable items
         fetchBookableItems();
     }
 }
 
-function getServicePrice(selectedService) {
-    // First check if the service has a Price property directly
-    if (selectedService.Price && typeof selectedService.Price === 'number') {
-        return selectedService.Price;
-    }
-    
-    // Next, check if we have sale services data
-    if (window.saleServices && window.saleServices.length > 0) {
-        // First try to match by session type ID
-        const matchById = window.saleServices.find(item => 
-            item.ProgramId === parseInt(selectedService.Id) || 
-            item.ProgramId === selectedService.Id
-        );
-        
-        if (matchById && typeof matchById.Price !== 'undefined' && 
-            matchById.Price !== null && matchById.Price > 0) {
-            console.log(`Found price match by ID for ${selectedService.Name}: $${matchById.Price}`);
-            return matchById.Price;
-        }
-        
-        // Try matching by name (case-insensitive)
-        const matchByName = window.saleServices.find(item =>
-            item.Name.toLowerCase().includes(selectedService.Name.toLowerCase()) ||
-            selectedService.Name.toLowerCase().includes(item.Name.toLowerCase())
-        );
-        
-        if (matchByName && typeof matchByName.Price !== 'undefined' && 
-            matchByName.Price !== null && matchByName.Price > 0) {
-            console.log(`Found price match by name for ${selectedService.Name}: $${matchByName.Price}`);
-            return matchByName.Price;
-        }
-        
-        // Try matching by description or any other field if available
-        if (selectedService.OnlineDescription) {
-            const matchByDescription = window.saleServices.find(item =>
-                item.Description && 
-                (item.Description.toLowerCase().includes(selectedService.OnlineDescription.toLowerCase()) ||
-                selectedService.OnlineDescription.toLowerCase().includes(item.Description.toLowerCase()))
-            );
-            
-            if (matchByDescription && typeof matchByDescription.Price !== 'undefined' && 
-                matchByDescription.Price !== null && matchByDescription.Price > 0) {
-                console.log(`Found price match by description for ${selectedService.Name}: $${matchByDescription.Price}`);
-                return matchByDescription.Price;
-            }
-        }
-    }
-    
-    // Make an API call to get the price if all else fails
-    fetchAndCacheServicePrice(selectedService.Id);
-    
-    // Return the default price while waiting for API response
-    return 95; // Default price
-}
-
-function renderProgressHeader(currentStep) {
-    return `
-        <style>
-            .wp-block-group{padding-top:0!important;}
-        </style>
-        <div class="bg-gradient-to-r from-gray-50 to-white rounded-xl p-6 mb-6">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <div class="w-2 h-2 rounded-full ${currentStep >= 1 ? 'bg-black' : 'bg-gray-300'}"></div>
-                    <div class="w-2 h-2 rounded-full ${currentStep >= 2 ? 'bg-black' : 'bg-gray-300'}"></div>
-                    <div class="w-2 h-2 rounded-full ${currentStep >= 3 ? 'bg-black' : 'bg-gray-300'}"></div>
-                </div>
-                <div class="text-sm font-medium text-gray-500">Step ${currentStep} of 3</div>
-            </div>
-        </div>
-    `;
-}
-
-async function fetchAndCacheServicePrice(serviceId) {
-    try {
-        const response = await fetch(mindbody_booking.ajax_url + 
-            "?action=mindbody_get_service_price&serviceId=" + serviceId);
-        const data = await response.json();
-        
-        if (data.success && data.data) {
-            // Cache the price in the service object for future use
-            const cachedService = window.cachedServices.find(s => s.Id === serviceId);
-            if (cachedService) {
-                cachedService.Price = data.data;
-                console.log(`Updated cached price for ${cachedService.Name}: $${data.data}`);
-            }
-            
-            // If this is the selected service, update the checkout
-            if (selectedService && selectedService.Id === serviceId) {
-                selectedService.Price = data.data;
-                
-                // Update price display in checkout if we're in checkout
-                const checkoutContainer = document.getElementById("mindbody-booking-widget");
-                if (checkoutContainer && checkoutContainer.innerHTML.includes("Complete Booking")) {
-                    goToCheckout(); // Refresh checkout to show updated price
-                }
-            }
-        }
-    } catch (error) {
-        console.error("Error fetching service price:", error);
-    }
-}
-
+// Step 2: Fetch bookable items using session types
 function fetchBookableItems() {
     const container = document.getElementById("mindbody-booking-widget");
     
+    // Show loading state
     container.innerHTML = `
         <div class="animate-pulse space-y-4">
             ${Array(3).fill().map(() => `
@@ -295,11 +247,25 @@ function fetchBookableItems() {
     `;
 
     fetch(mindbody_booking.ajax_url + "?action=mindbody_get_bookable_items")
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
-                window.cachedServices = data.data; // Cache the services
-                displayBookableItems(data.data);
+                // Add pricing information from our session types
+                const services = data.data.map(service => {
+                    // Find matching session type
+                    if (window.sessionTypesMap[service.Id]) {
+                        service.Price = window.sessionTypesMap[service.Id].Price || 0;
+                    }
+                    return service;
+                });
+                
+                window.cachedServices = services; // Cache the services
+                displayBookableItems(services);
             } else {
                 showError("No available appointments at this time.");
             }
@@ -310,6 +276,45 @@ function fetchBookableItems() {
         });
 }
 
+// Updated getServicePrice function - much simpler
+function getServicePrice(selectedService) {
+    if (!selectedService) return 65;
+    
+    // If service already has a price, use it
+    if (selectedService.Price && selectedService.Price > 0) {
+        return selectedService.Price;
+    }
+    
+    // Check session types map
+    if (window.sessionTypesMap && window.sessionTypesMap[selectedService.Id]) {
+        return window.sessionTypesMap[selectedService.Id].Price || 65;
+    }
+    
+    // Default prices by name matching
+    const defaultPrices = {
+        'Nutrition': 30,
+        '1on1': 65,
+        '2on1': 40,
+        '3on1': 30,
+        'Consult': 0,
+        'Tour': 0,
+        '90 min': 100,
+        '60 min': 80,
+        '120 min': 120
+    };
+    
+    const serviceName = selectedService.Name || '';
+    
+    for (const [keyword, price] of Object.entries(defaultPrices)) {
+        if (serviceName.includes(keyword)) {
+            return price;
+        }
+    }
+    
+    // Default price
+    return 65;
+}
+
 function displayBookableItems(items) {
     const container = document.getElementById("mindbody-booking-widget");
     
@@ -318,103 +323,123 @@ function displayBookableItems(items) {
         return;
     }
 
-    // Pre-fetch prices for all services if they don't have one already
+    // Group services by category (using first word of service name as category)
+    const categories = {};
     items.forEach(service => {
-        if (!service.Price || service.Price <= 0) {
-            fetchAndCacheServicePrice(service.Id);
+        // Determine category from service name (this is a simple approach)
+        let category = "Other";
+        
+        if (service.Name.includes("Consultation") || service.Name.includes("Consult") || service.Name.includes("Tour")) {
+            category = "Membership Consultation";
+        } else if (service.Name.includes("Reservation")) {
+            category = "Court Rentals";
+        } else if (service.Name.includes("Training") || service.Name.includes("1on1") || 
+                   service.Name.includes("2on1") || service.Name.includes("3on1")) {
+            category = "Personal Training";
         }
+        
+        if (!categories[category]) {
+            categories[category] = [];
+        }
+        categories[category].push(service);
     });
 
     container.innerHTML = `
         <div class="space-y-6">
             ${renderProgressHeader(1)}
-            <div class="space-y-4">
-                ${items.map(service => {
-                    const serviceData = encodeURIComponent(JSON.stringify(service));
-                    const isSelected = selectedService?.Id === service.Id;
-                    const price = getServicePrice(service);
-                    
-                    return `
-                        <div class="bg-white rounded-lg border shadow-sm">
-                            <div onclick="toggleServiceSelection('${service.Id}', '${serviceData}')" class="p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <h3 class="text-lg font-medium text-gray-900">${service.Name}</h3>
-                                        <p class="text-sm text-gray-500">Price: $${price.toFixed(2)}</p>
-                                        ${service.OnlineDescription ? `<p class="mt-1 text-sm text-gray-500">${service.OnlineDescription}</p>` : ''}
-                                    </div>
-                                    <div class="ml-4">
-                                        <span class="inline-flex items-center px-4 py-2 text-sm font-medium ${isSelected ? 'bg-black text-white' : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'} rounded-md transition-colors">
-                                            ${isSelected ? 'Selected' : 'Select'}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            ${isSelected ? `
-                                <div class="border-t border-gray-200">
-                                    <div class="p-4">
-                                        <h4 class="text-base font-medium text-gray-900 mb-3">Select Your Provider</h4>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                            <button onclick="event.stopPropagation(); selectServiceAndStaff('${service.Id}', '${service.Name}', null)" class="flex flex-col text-left p-4 border rounded-lg hover:border-black transition-colors">
-                                                <span class="text-base font-medium text-gray-900">Any Available Staff</span>
-                                                <span class="mt-1 text-sm text-gray-500">Choose first available</span>
-                                            </button>
-                                            ${service.Staff.map(staff => {
-                                                const staffData = encodeURIComponent(JSON.stringify(staff));
-                                                return `
-                                                    <button onclick="event.stopPropagation(); selectServiceAndStaff('${service.Id}', '${service.Name}', '${staffData}')" class="flex flex-col text-left p-4 border rounded-lg hover:border-black transition-colors">
-                                                        <span class="text-base font-medium text-gray-900">${staff.Name}</span>
-                                                        <span class="mt-1 text-sm text-gray-500">${staff.availability || 'Check availability'}</span>
-                                                    </button>
-                                                `;
-                                            }).join('')}
+            <div class="space-y-6">
+                ${Object.entries(categories).map(([category, services]) => `
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-semibold text-gray-900">${category}</h2>
+                        ${services.map(service => {
+                            const serviceData = encodeURIComponent(JSON.stringify(service));
+                            const isSelected = selectedService?.Id === service.Id;
+                            const price = getServicePrice(service);
+                            
+                            return `
+                                <div class="bg-white rounded-lg border shadow-sm">
+                                    <div onclick="toggleServiceSelection('${service.Id}', '${serviceData}')" class="p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h3 class="text-lg font-medium text-gray-900">${service.Name}</h3>
+                                                <p class="text-sm text-gray-500 service-price" data-service-id="${service.Id}">Price: $${price.toFixed(2)}</p>
+                                                ${service.OnlineDescription ? `<p class="mt-1 text-sm text-gray-500">${service.OnlineDescription}</p>` : ''}
+                                            </div>
+                                            <div class="ml-4">
+                                                <span class="inline-flex items-center px-4 py-2 text-sm font-medium ${isSelected ? 'bg-black text-white' : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'} rounded-md transition-colors">
+                                                    ${isSelected ? 'Selected' : 'Select'}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
+                                    ${isSelected ? `
+                                        <div class="border-t border-gray-200">
+                                            <div class="p-4">
+                                                <h4 class="text-base font-medium text-gray-900 mb-3">Select Your Provider</h4>
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    <button onclick="event.stopPropagation(); selectServiceAndStaff('${service.Id}', '${service.Name}', null)" class="flex flex-col text-left p-4 border rounded-lg hover:border-black transition-colors">
+                                                        <span class="text-base font-medium text-gray-900">Any Available Staff</span>
+                                                        <span class="mt-1 text-sm text-gray-500">Choose first available</span>
+                                                    </button>
+                                                    ${service.Staff && service.Staff.length > 0 ? service.Staff.map(staff => {
+                                                        const staffData = encodeURIComponent(JSON.stringify(staff));
+                                                        return `
+                                                            <button onclick="event.stopPropagation(); selectServiceAndStaff('${service.Id}', '${service.Name}', '${staffData}')" class="flex flex-col text-left p-4 border rounded-lg hover:border-black transition-colors">
+                                                                <span class="text-base font-medium text-gray-900">${staff.Name}</span>
+                                                                <span class="mt-1 text-sm text-gray-500">${staff.availability || 'Check availability'}</span>
+                                                            </button>
+                                                        `;
+                                                    }).join('') : '<p class="text-sm text-gray-500 p-4">No staff currently available for this service.</p>'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ` : ''}
                                 </div>
-                            ` : ''}
-                        </div>
-                    `;
-                }).join('')}
+                            `;
+                        }).join('')}
+                    </div>
+                `).join('')}
             </div>
         </div>
     `;
-    
-    // Add price refresher to update prices as they come in
-    setTimeout(refreshServicePrices, 1000, items);
 }
 
-// Function to refresh service prices after they've been fetched
-function refreshServicePrices(items) {
-    if (!window.cachedServices) return;
+function showError(message, details = null) {
+    const container = document.getElementById("mindbody-booking-widget");
     
-    const priceElements = document.querySelectorAll('.text-sm.text-gray-500');
-    let needsRefresh = false;
-    
-    items.forEach(service => {
-        // Check if price has been updated
-        const cachedService = window.cachedServices.find(s => s.Id === service.Id);
-        if (cachedService && cachedService.Price && (!service.Price || service.Price !== cachedService.Price)) {
-            needsRefresh = true;
-        }
-    });
-    
-    if (needsRefresh) {
-        // Only re-render if prices have changed
-        displayBookableItems(window.cachedServices);
-    } else {
-        // Check again in a second
-        setTimeout(refreshServicePrices, 1000, items);
-    }
+    container.innerHTML = `
+        <div class="text-center py-8">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="text-gray-700 font-medium mb-2">${message}</div>
+            ${details ? `<div class="text-gray-500 text-sm mb-4">${details}</div>` : ''}
+            <button 
+                onclick="initializeBookingWidget()"
+                class="mt-4 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-sm">
+                Try Again
+            </button>
+        </div>
+    `;
 }
 
 function selectServiceAndStaff(serviceId, serviceName, staffJson) {
-    selectedService = {
+    // Find the full service object with price
+    const fullService = window.cachedServices.find(s => s.Id === serviceId) || {
         Id: serviceId,
         Name: serviceName
     };
     
+    // Make sure we have a price from session types
+    if ((!fullService.Price || fullService.Price <= 0) && window.sessionTypesMap[serviceId]) {
+        fullService.Price = window.sessionTypesMap[serviceId].Price || 0;
+    }
+    
+    selectedService = fullService;
+    
     if (staffJson) {
-        // Decode the URI-encoded JSON string
         selectedStaff = JSON.parse(decodeURIComponent(staffJson));
     } else {
         selectedStaff = null;
@@ -430,6 +455,11 @@ function toggleServiceSelection(serviceId, encodedService) {
         selectedService = null;
     } else {
         selectedService = service;
+        
+        // Ensure price is set from session types
+        if (window.sessionTypesMap[serviceId] && (!selectedService.Price || selectedService.Price <= 0)) {
+            selectedService.Price = window.sessionTypesMap[serviceId].Price || 0;
+        }
     }
     
     // Re-render without fetching
@@ -765,6 +795,11 @@ function formatTime(time) {
 function selectTimeSlot(time) {
     selectedDateTime = time;
     
+    // Ensure the service has a price before adding to cart
+    if (selectedService && !selectedService.Price && window.sessionTypesMap[selectedService.Id]) {
+        selectedService.Price = window.sessionTypesMap[selectedService.Id].Price || 0;
+    }
+    
     // Store the current selection in cart
     const cartItem = {
         service: selectedService,
@@ -779,26 +814,6 @@ function selectTimeSlot(time) {
     showAuthenticationOrContinue();
 }
 
-function showError(message) {
-    const container = document.getElementById("mindbody-booking-widget");
-    
-    container.innerHTML = `
-        <div class="text-center py-8">
-            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <div class="text-gray-500">${message}</div>
-            <button 
-                onclick="initializeBookingWidget()"
-                class="mt-6 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-sm">
-                Try Again
-            </button>
-        </div>
-    `;
-}
-
 // Helper function to check authentication status and redirect accordingly
 async function showAuthenticationOrContinue() {
     // Check WordPress auth status first
@@ -811,8 +826,285 @@ async function showAuthenticationOrContinue() {
     }
 }
 
+// Get current cart items
+function getCartItems() {
+    const cartData = localStorage.getItem('mindbody_cart');
+    if (cartData) {
+        try {
+            const cart = JSON.parse(cartData);
+            // Make sure cart has items array
+            if (!cart.items) {
+                cart.items = [{
+                    service: cart.service,
+                    staff: cart.staff,
+                    date: cart.date,
+                    time: cart.time
+                }];
+            }
+            return cart;
+        } catch (e) {
+            console.error("Error parsing cart data", e);
+        }
+    }
+    
+    // Return empty cart if no data found
+    return { 
+        items: [],
+        cartId: null
+    };
+}
 
-// Step 3: Account Options – Either log in or continue as guest with minimal info
+// Save cart to localStorage
+function saveCart(cart) {
+    localStorage.setItem('mindbody_cart', JSON.stringify(cart));
+}
+
+// Add item to cart
+function addToCart(item) {
+    const cart = getCartItems();
+    
+    // Ensure the service has a price
+    if (item.service && (!item.service.Price || item.service.Price <= 0) && window.sessionTypesMap[item.service.Id]) {
+        item.service.Price = window.sessionTypesMap[item.service.Id].Price || 0;
+    }
+    
+    // Check if item already exists (by service id)
+    const existingItemIndex = cart.items.findIndex(i => 
+        i.service && item.service && i.service.Id === item.service.Id
+    );
+    
+    if (existingItemIndex >= 0) {
+        // Replace existing item
+        cart.items[existingItemIndex] = item;
+    } else {
+        // Add new item
+        cart.items.push(item);
+    }
+    
+    saveCart(cart);
+    return cart;
+}
+
+// Remove item from cart
+function removeFromCart(serviceId) {
+    const cart = getCartItems();
+    
+    // Filter out the item to remove
+    cart.items = cart.items.filter(item => 
+        !item.service || item.service.Id !== serviceId
+    );
+    
+    saveCart(cart);
+    
+    // If cart is now empty, redirect to service selection
+    if (cart.items.length === 0) {
+        fetchBookableItems();
+    } else {
+        // Otherwise refresh the checkout
+        goToCheckout();
+    }
+    
+    return cart;
+}
+
+// Continue shopping - save current cart and go back to service selection
+function continueShopping() {
+    // Cart is already saved in localStorage
+    fetchBookableItems();
+}
+
+// Format phone number
+function formatPhoneNumber(input) {
+    // Store current cursor position
+    const cursorPos = input.selectionStart;
+    const oldLength = input.value.length;
+    
+    // Get input value and remove non-numeric characters
+    let value = input.value.replace(/\D/g, '');
+    
+    // Format the phone number as (XXX) XXX-XXXX
+    if (value.length > 0) {
+        if (value.length <= 3) {
+            value = `(${value}`;
+        } else if (value.length <= 6) {
+            value = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+        } else {
+            value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
+        }
+    }
+    
+    // Only update if the value has changed
+    if (input.value !== value) {
+        // Update input value
+        input.value = value;
+        
+        // Adjust cursor position based on added formatting characters
+        const newLength = input.value.length;
+        const lengthDiff = newLength - oldLength;
+        input.setSelectionRange(cursorPos + lengthDiff, cursorPos + lengthDiff);
+    }
+}
+
+// Format credit card
+function formatCreditCard(input) {
+    // Store current cursor position
+    const cursorPos = input.selectionStart;
+    const oldValue = input.value;
+    
+    // Remove non-numeric characters
+    let value = input.value.replace(/\D/g, '');
+    
+    // Add spaces every 4 digits
+    let formattedValue = '';
+    for (let i = 0; i < value.length; i++) {
+        if (i > 0 && i % 4 === 0) {
+            formattedValue += ' ';
+        }
+        formattedValue += value[i];
+    }
+    
+    // Only update if the value has changed
+    if (oldValue !== formattedValue) {
+        // Count how many extra chars were added before cursor
+        let extraChars = 0;
+        for (let i = 0; i < Math.min(cursorPos, formattedValue.length); i++) {
+            if (formattedValue[i] === ' ' && (i >= oldValue.length || oldValue[i] !== ' ')) {
+                extraChars++;
+            }
+        }
+        
+        // Update input value
+        input.value = formattedValue;
+        
+        // Restore cursor position accounting for added spaces
+        const newCursorPos = cursorPos + extraChars;
+        input.setSelectionRange(newCursorPos, newCursorPos);
+    }
+    
+    // Detect card type based on first digits
+    const cardType = detectCardType(value);
+    
+    // Get the card icon element
+    const cardIconElement = document.getElementById('cardTypeIcon');
+    if (cardIconElement) {
+        if (cardType) {
+            // Display appropriate card icon
+            cardIconElement.innerHTML = getCardIconHtml(cardType);
+            cardIconElement.style.display = 'block';
+        } else {
+            // Clear and hide if no recognized card type
+            cardIconElement.innerHTML = '';
+            cardIconElement.style.display = 'none';
+        }
+    }
+}
+
+function getCardIconHtml(cardType) {
+    switch (cardType.toLowerCase()) {
+        case 'visa':
+            return '<div class="bg-blue-800 rounded text-white text-xs font-bold px-1 py-0.5 flex items-center justify-center h-full">VISA</div>';
+        case 'mastercard':
+            return '<div class="flex"><div class="bg-red-500 rounded-l w-4 h-full"></div><div class="bg-yellow-400 rounded-r w-4 h-full"></div></div>';
+        case 'amex':
+            return '<div class="bg-blue-500 rounded text-white text-xs font-bold px-1 py-0.5 flex items-center justify-center h-full">AMEX</div>';
+        case 'discover':
+            return '<div class="bg-orange-500 rounded text-white text-xs font-bold px-1 py-0.5 flex items-center justify-center h-full">DISC</div>';
+        default:
+            return '';
+    }
+}
+
+// Format expiry date
+function formatExpiryDate(input) {
+    // Store current cursor position
+    const cursorPos = input.selectionStart;
+    const oldValue = input.value;
+    
+    // Remove non-numeric characters
+    let value = input.value.replace(/\D/g, '');
+    
+    // Add slash after month (MM/YY)
+    if (value.length > 2) {
+        value = `${value.slice(0, 2)}/${value.slice(2, 4)}`;
+    }
+    
+    // Only update if value changed
+    if (oldValue !== value) {
+        // Calculate added characters
+        const addedSlash = (value.length > 2 && (oldValue.length <= 2 || oldValue[2] !== '/')) ? 1 : 0;
+        
+        // Update input value
+        input.value = value;
+        
+        // Adjust cursor position if we added a slash
+        const newCursorPos = cursorPos + addedSlash;
+        setTimeout(() => input.setSelectionRange(newCursorPos, newCursorPos), 0);
+    }
+}
+
+// Initialize input formatting
+function initializeFormattingListeners() {
+    // Phone number formatting
+    const phoneInput = document.querySelector('input[type="tel"]');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            // Don't format if the change is due to our own formatting
+            if (e.inputType === 'insertText' || e.inputType === 'deleteContentBackward') {
+                formatPhoneNumber(this);
+            }
+        });
+        // Initial formatting
+        formatPhoneNumber(phoneInput);
+    }
+    
+    // Credit card formatting
+    const cardInput = document.getElementById('cardNumber');
+    if (cardInput) {
+        cardInput.addEventListener('input', function(e) {
+            // Don't format if the change is due to our own formatting
+            if (e.inputType === 'insertText' || e.inputType === 'deleteContentBackward') {
+                formatCreditCard(this);
+            }
+        });
+        // Initial formatting
+        formatCreditCard(cardInput);
+    }
+    
+    // Expiry date formatting
+    const expiryInput = document.querySelector('input[name="expiry"]');
+    if (expiryInput) {
+        expiryInput.addEventListener('input', function(e) {
+            // Don't format if the change is due to our own formatting
+            if (e.inputType === 'insertText' || e.inputType === 'deleteContentBackward') {
+                formatExpiryDate(this);
+            }
+        });
+        // Initial formatting
+        formatExpiryDate(expiryInput);
+    }
+}
+
+// Detect credit card type based on first digits
+function detectCardType(number) {
+    const firstDigit = number.charAt(0);
+    const firstTwoDigits = number.substr(0, 2);
+    const firstFourDigits = number.substr(0, 4);
+    
+    if (firstDigit === '4') {
+        return 'Visa';
+    } else if (firstTwoDigits >= '51' && firstTwoDigits <= '55') {
+        return 'Mastercard';
+    } else if (firstTwoDigits === '34' || firstTwoDigits === '37') {
+        return 'Amex';
+    } else if (firstFourDigits === '6011' || 
+               (firstTwoDigits === '65') || 
+               (parseInt(firstTwoDigits) >= 64 && parseInt(firstTwoDigits) <= 65)) {
+        return 'Discover';
+    }
+    return null;
+}
+
+// Account Options – Either log in or continue as guest
 function showAuthenticationForm() {
     const container = document.getElementById("mindbody-booking-widget");
     container.innerHTML = `
@@ -887,9 +1179,9 @@ function showLoginForm() {
             
             if (data.success) {
                 isAuthenticated = true;
-                window.clientInfo = data.data.client;
+                window.clientInfo = data.data.client || data.data.wp_user;
                 localStorage.setItem('mindbody_auth', 'true');
-                localStorage.setItem('mindbody_client_info', JSON.stringify(data.data.client));
+                localStorage.setItem('mindbody_client_info', JSON.stringify(window.clientInfo));
                 goToCheckout();
             } else {
                 alert(data.data.message || "Login failed. Please check your credentials.");
@@ -974,276 +1266,21 @@ async function fetchSavedPaymentMethods() {
     }
 }
 
-// Get current cart items
-function getCartItems() {
-    const cartData = localStorage.getItem('mindbody_cart');
-    if (cartData) {
-        try {
-            const cart = JSON.parse(cartData);
-            // Make sure cart has items array
-            if (!cart.items) {
-                cart.items = [{
-                    service: cart.service,
-                    staff: cart.staff,
-                    date: cart.date,
-                    time: cart.time
-                }];
-            }
-            return cart;
-        } catch (e) {
-            console.error("Error parsing cart data", e);
-        }
-    }
-    
-    // Return empty cart if no data found
-    return { 
-        items: [],
-        cartId: null
-    };
-}
-
-// Save cart to localStorage
-function saveCart(cart) {
-    localStorage.setItem('mindbody_cart', JSON.stringify(cart));
-}
-
-// Add item to cart
-function addToCart(item) {
-    const cart = getCartItems();
-    
-    // Check if item already exists (by service id)
-    const existingItemIndex = cart.items.findIndex(i => 
-        i.service && item.service && i.service.Id === item.service.Id
-    );
-    
-    if (existingItemIndex >= 0) {
-        // Replace existing item
-        cart.items[existingItemIndex] = item;
-    } else {
-        // Add new item
-        cart.items.push(item);
-    }
-    
-    saveCart(cart);
-    return cart;
-}
-
-// Remove item from cart
-function removeFromCart(serviceId) {
-    const cart = getCartItems();
-    
-    // Filter out the item to remove
-    cart.items = cart.items.filter(item => 
-        !item.service || item.service.Id !== serviceId
-    );
-    
-    saveCart(cart);
-    
-    // If cart is now empty, redirect to service selection
-    if (cart.items.length === 0) {
-        fetchBookableItems();
-    } else {
-        // Otherwise refresh the checkout
-        goToCheckout();
-    }
-    
-    return cart;
-}
-
-// Continue shopping - save current cart and go back to service selection
-function continueShopping() {
-    // Cart is already saved in localStorage
-    fetchBookableItems();
-}
-
-// Format phone number as user types
-function formatPhoneNumber(input) {
-    // Store current cursor position
-    const cursorPos = input.selectionStart;
-    const oldLength = input.value.length;
-    
-    // Get input value and remove non-numeric characters
-    let value = input.value.replace(/\D/g, '');
-    
-    // Format the phone number as (XXX) XXX-XXXX
-    if (value.length > 0) {
-        if (value.length <= 3) {
-            value = `(${value}`;
-        } else if (value.length <= 6) {
-            value = `(${value.slice(0, 3)}) ${value.slice(3)}`;
-        } else {
-            value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
-        }
-    }
-    
-    // Only update if the value has changed
-    if (input.value !== value) {
-        // Update input value
-        input.value = value;
-        
-        // Adjust cursor position based on added formatting characters
-        const newLength = input.value.length;
-        const lengthDiff = newLength - oldLength;
-        input.setSelectionRange(cursorPos + lengthDiff, cursorPos + lengthDiff);
-    }
-}
-
-// Format credit card number with spaces and detect card type
-function formatCreditCard(input) {
-    // Store current cursor position
-    const cursorPos = input.selectionStart;
-    const oldValue = input.value;
-    
-    // Remove non-numeric characters
-    let value = input.value.replace(/\D/g, '');
-    
-    // Add spaces every 4 digits
-    let formattedValue = '';
-    for (let i = 0; i < value.length; i++) {
-        if (i > 0 && i % 4 === 0) {
-            formattedValue += ' ';
-        }
-        formattedValue += value[i];
-    }
-    
-    // Only update if the value has changed
-    if (oldValue !== formattedValue) {
-        // Count how many extra chars were added before cursor
-        let extraChars = 0;
-        for (let i = 0; i < Math.min(cursorPos, formattedValue.length); i++) {
-            if (formattedValue[i] === ' ' && (i >= oldValue.length || oldValue[i] !== ' ')) {
-                extraChars++;
-            }
-        }
-        
-        // Update input value
-        input.value = formattedValue;
-        
-        // Restore cursor position accounting for added spaces
-        const newCursorPos = cursorPos + extraChars;
-        input.setSelectionRange(newCursorPos, newCursorPos);
-    }
-    
-    // Detect card type based on first digits
-    const cardType = detectCardType(value);
-    
-    // Get the card number input element and update its classes
-    if (cardType) {
-        // Display card icon if desired
-        const cardIconElement = document.getElementById('cardTypeIcon');
-        if (cardIconElement) {
-            cardIconElement.className = `card-icon ${cardType.toLowerCase()}`;
-            cardIconElement.style.display = 'block';
-        }
-    }
-}
-
-// Detect credit card type based on first digits
-function detectCardType(number) {
-    const firstDigit = number.charAt(0);
-    const firstTwoDigits = number.substr(0, 2);
-    const firstFourDigits = number.substr(0, 4);
-    
-    if (firstDigit === '4') {
-        return 'Visa';
-    } else if (firstTwoDigits >= '51' && firstTwoDigits <= '55') {
-        return 'Mastercard';
-    } else if (firstTwoDigits === '34' || firstTwoDigits === '37') {
-        return 'Amex';
-    } else if (firstFourDigits === '6011' || 
-               (firstTwoDigits === '65') || 
-               (parseInt(firstTwoDigits) >= 64 && parseInt(firstTwoDigits) <= 65)) {
-        return 'Discover';
-    }
-    return null;
-}
-
-// Format expiry date as MM/YY
-function formatExpiryDate(input) {
-    // Store current cursor position
-    const cursorPos = input.selectionStart;
-    const oldValue = input.value;
-    
-    // Remove non-numeric characters
-    let value = input.value.replace(/\D/g, '');
-    
-    // Add slash after month (MM/YY)
-    if (value.length > 2) {
-        value = `${value.slice(0, 2)}/${value.slice(2, 4)}`;
-    }
-    
-    // Only update if value changed
-    if (oldValue !== value) {
-        // Calculate added characters
-        const addedSlash = (value.length > 2 && (oldValue.length <= 2 || oldValue[2] !== '/')) ? 1 : 0;
-        
-        // Update input value
-        input.value = value;
-        
-        // Adjust cursor position if we added a slash
-        const newCursorPos = cursorPos + addedSlash;
-        setTimeout(() => input.setSelectionRange(newCursorPos, newCursorPos), 0);
-    }
-}
-
-// Initialize input formatting
-function initializeFormattingListeners() {
-    // Phone number formatting
-    const phoneInput = document.querySelector('input[type="tel"]');
-    if (phoneInput) {
-        phoneInput.addEventListener('input', function(e) {
-            // Don't format if the change is due to our own formatting
-            if (e.inputType === 'insertText' || e.inputType === 'deleteContentBackward') {
-                formatPhoneNumber(this);
-            }
-        });
-        // Initial formatting
-        formatPhoneNumber(phoneInput);
-    }
-    
-    // Credit card formatting
-    const cardInput = document.getElementById('cardNumber');
-    if (cardInput) {
-        cardInput.addEventListener('input', function(e) {
-            // Don't format if the change is due to our own formatting
-            if (e.inputType === 'insertText' || e.inputType === 'deleteContentBackward') {
-                formatCreditCard(this);
-            }
-        });
-        // Initial formatting
-        formatCreditCard(cardInput);
-    }
-    
-    // Expiry date formatting
-    const expiryInput = document.querySelector('input[name="expiry"]');
-    if (expiryInput) {
-        expiryInput.addEventListener('input', function(e) {
-            // Don't format if the change is due to our own formatting
-            if (e.inputType === 'insertText' || e.inputType === 'deleteContentBackward') {
-                formatExpiryDate(this);
-            }
-        });
-        // Initial formatting
-        formatExpiryDate(expiryInput);
-    }
-}
-
 function renderPaymentOptions(savedMethods) {
     let html = '';
     if (savedMethods.length > 0) {
-        html += `<div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Saved Payment Methods</label>`;
+        html += `<div class="mb-2">
+            <div class="font-medium mb-1 text-xs">Saved Payment Methods</div>`;
         savedMethods.forEach((method, index) => {
-            // Assume each method object contains an id and a masked card number (last4)
             html += `<div class="flex items-center mb-1">
-                <input type="radio" name="paymentOption" value="${method.id}" id="saved_${index}" class="form-radio">
-                <label for="saved_${index}" class="ml-2 text-sm">Card ending in ${method.last4}</label>
+                <input type="radio" name="paymentOption" value="${method.id}" id="saved_${index}" class="form-radio h-3 w-3">
+                <label for="saved_${index}" class="ml-2 text-xs">Card ending in ${method.last4}</label>
             </div>`;
         });
         html += `</div>
-            <div class="flex items-center mb-4">
-                <input type="radio" name="paymentOption" value="new" id="paymentOption_new">
-                <label for="paymentOption_new" class="ml-2 text-sm">Use a new payment method</label>
+            <div class="flex items-center mb-2">
+                <input type="radio" name="paymentOption" value="new" id="paymentOption_new" class="h-3 w-3">
+                <label for="paymentOption_new" class="ml-2 text-xs">Use a new payment method</label>
             </div>`;
         // Default to "new" if desired:
         document.addEventListener("DOMContentLoaded", () => {
@@ -1255,7 +1292,6 @@ function renderPaymentOptions(savedMethods) {
     }
     return html;
 }
-
 
 function goToCheckout() {
     const container = document.getElementById("mindbody-booking-widget");
@@ -1280,37 +1316,60 @@ function goToCheckout() {
     let subtotal = 0;
     let taxRate = 0.06; // 6% tax rate
     
-    // Create HTML for cart items
+    // Ensure all items in cart have correct prices
+    cart.items.forEach(item => {
+        if (item.service) {
+            // If the service doesn't have a price but we have one in session types map, use it
+            if ((!item.service.Price || item.service.Price <= 0) && window.sessionTypesMap && window.sessionTypesMap[item.service.Id]) {
+                item.service.Price = window.sessionTypesMap[item.service.Id].Price || 0;
+            }
+            
+            // Add to subtotal
+            subtotal += (item.service.Price || 0);
+        }
+    });
+    
+    // Save the cart with updated prices
+    saveCart(cart);
+    
+    // Create HTML for cart items - use the optimized compact layout
     const cartItemsHtml = cart.items.map(item => {
         const service = item.service || {};
-        const price = getServicePrice(service);
-        subtotal += price;
+        const price = service.Price || 0;
         
         const appointmentDate = item.date ? new Date(item.date) : new Date();
         
         return `
-            <div class="flex items-center justify-between py-3 border-b">
+            <div class="flex items-center justify-between py-2 border-b">
                 <div class="flex-1">
-                    <div class="flex items-center mb-1">
-                        <h3 class="font-medium">${service.Name || 'Unknown Service'}</h3>
+                    <div class="flex items-center">
+                        <h3 class="font-medium text-sm sm:text-base">${service.Name || 'Unknown Service'}</h3>
+                        <button 
+                            onclick="editAppointment('${service.Id}')"
+                            class="ml-2 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                            aria-label="Edit appointment"
+                        >
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </button>
                         <button 
                             onclick="removeFromCart('${service.Id}')"
-                            class="ml-3 text-sm text-red-500 hover:text-red-700 transition-colors flex items-center"
+                            class="ml-2 text-xs text-red-500 hover:text-red-700 transition-colors"
+                            aria-label="Remove item"
                         >
-                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
-                            Remove
                         </button>
                     </div>
-                    <div class="text-sm text-gray-500">
-                        ${item.staff ? `Provider: ${item.staff.Name}<br>` : ''}
+                    <div class="text-xs text-gray-500">
                         ${item.date && item.time ? 
                             `${appointmentDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at ${formatTime(item.time)}` : 
                             'Time not selected'}
                     </div>
                 </div>
-                <span class="font-medium">$${price.toFixed(2)}</span>
+                <span class="font-medium text-sm">$${price.toFixed(2)}</span>
             </div>
         `;
     }).join('');
@@ -1340,197 +1399,188 @@ function goToCheckout() {
     container.innerHTML = `
         <div class="max-w-2xl mx-auto">
             ${renderProgressHeader(3)}
-
-            <!-- Back and Continue Shopping Buttons -->
-            <div class="flex justify-between items-center mb-6">
-                <button 
-                    onclick="fetchAvailableDates()"
-                    class="flex items-center text-sm text-gray-600 hover:text-black transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-                    </svg>
-                    Back to Date & Time
-                </button>
+            
+            <!-- Continue Shopping Button -->
+            <div class="flex justify-end mb-4">
                 <button 
                     onclick="continueShopping()"
-                    class="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="flex items-center text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                    Continue Shopping
+                    Add more
                 </button>
             </div>
 
-            <!-- Main Content -->
-            <div class="mb-6">
-                <h2 class="text-xl font-semibold mb-2">Checkout</h2>
-                <p class="text-gray-500 text-sm">Confirm your appointment details and complete payment</p>
-            </div>
-
-            <!-- Cart Items Summary -->
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
-                <h3 class="text-lg font-medium mb-4">Your Appointments</h3>
-                <div class="space-y-1">
-                    ${cartItemsHtml}
-                </div>
-            </div>
-
-            <!-- Contact Details -->
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
-                <h3 class="text-lg font-medium mb-4">Contact Details</h3>
-                <div class="space-y-3">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-sm text-gray-600 mb-1">First Name</label>
-                            <input 
-                                type="text" 
-                                name="firstName"
-                                value="${formValues.firstName || window.clientInfo?.first_name || window.clientInfo?.FirstName || ''}"
-                                class="w-full px-3 py-2 text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-20 focus:border-black transition-all placeholder-gray-400"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label class="block text-sm text-gray-600 mb-1">Last Name</label>
-                            <input 
-                                type="text" 
-                                name="lastName"
-                                value="${window.clientInfo?.last_name || window.clientInfo?.LastName || ''}"
-                                class="w-full px-3 py-2 text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-20 focus:border-black transition-all placeholder-gray-400"
-                                required
-                            />
-                        </div>
-                    </div>
+            <!-- Vertical Layout -->
+            <div class="space-y-4">
+                <!-- Cart Items Summary -->
+                <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                    <h3 class="text-sm font-medium mb-2">Your Appointments</h3>
                     <div>
-                        <label class="block text-sm text-gray-600 mb-1">Phone Number</label>
-                        <div class="relative">
-                            <input 
-                                type="tel" 
-                                name="phone"
-                                class="w-full pl-10 pr-3 py-2 text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-20 focus:border-black transition-all placeholder-gray-400"
-                                placeholder="(XXX) XXX-XXXX"
-                                value="${formValues.phone || phoneValue}"
-                                required
-                            />
-                            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                </svg>
+                        ${cartItemsHtml}
+                    </div>
+                </div>
+
+                <!-- Contact Details -->
+                <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                    <h3 class="text-sm font-medium mb-2">Contact Details</h3>
+                    <div class="space-y-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <input 
+                                    type="text" 
+                                    name="firstName"
+                                    placeholder="First Name"
+                                    value="${formValues.firstName || window.clientInfo?.first_name || window.clientInfo?.FirstName || ''}"
+                                    class="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black focus:ring-opacity-20 focus:border-black transition-all placeholder-gray-400"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <input 
+                                    type="text" 
+                                    name="lastName"
+                                    placeholder="Last Name"
+                                    value="${formValues.lastName || window.clientInfo?.last_name || window.clientInfo?.LastName || ''}"
+                                    class="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black focus:ring-opacity-20 focus:border-black transition-all placeholder-gray-400"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <div class="relative">
+                                <input 
+                                    type="tel" 
+                                    name="phone"
+                                    class="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black focus:ring-opacity-20 focus:border-black transition-all placeholder-gray-400"
+                                    placeholder="Phone Number"
+                                    value="${formValues.phone || phoneValue}"
+                                    required
+                                />
+                                <div class="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                    </svg>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Payment Section -->
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <div class="flex items-center justify-between mb-5">
-                    <h3 class="text-lg font-medium">Payment Details</h3>
-                    <button 
-                        onclick="togglePromoCode()"
-                        class="text-sm text-gray-500 hover:text-black transition-colors"
-                    >
-                        Have a promo code?
-                    </button>
-                </div>
-
-                <!-- Hidden Promo Code Section -->
-                <div id="promoCodeSection" class="hidden mb-5">
-                    <div class="flex space-x-2">
-                        <input 
-                            type="text"
-                            class="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-20 focus:border-black transition-all"
-                            placeholder="Enter code"
-                        />
-                        <button class="px-4 py-2 border border-gray-200 rounded-lg text-sm hover:border-black transition-all duration-300">
-                            Apply
+                <!-- Payment Section -->
+                <div class="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-medium">Payment Details</h3>
+                        <button 
+                            onclick="togglePromoCode()"
+                            class="text-xs text-gray-500 hover:text-black transition-colors"
+                        >
+                            Promo code?
                         </button>
                     </div>
-                </div>
 
-                <!-- Payment Options Container -->
-                <div id="paymentOptionsContainer" class="mb-5">
-                    <!-- Saved payment methods will be rendered here -->
-                </div>
-
-                <!-- New Payment Form (shown if user selects "new") -->
-                <div id="newPaymentForm" class="space-y-4 mb-5">
-                    <div class="relative">
-                        <input 
-                            type="text" 
-                            id="cardNumber"
-                            name="cardNumber" 
-                            placeholder="Card Number" 
-                            value="${formValues.cardNumber}"
-                            class="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                            required
-                        />
-                        <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                            </svg>
-                        </div>
-                        <div id="cardTypeIcon" class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden">
-                            <!-- Card type icon will be displayed here -->
+                    <!-- Hidden Promo Code Section -->
+                    <div id="promoCodeSection" class="hidden mb-3">
+                        <div class="flex space-x-2">
+                            <input 
+                                type="text"
+                                class="flex-1 px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
+                                placeholder="Enter code"
+                            />
+                            <button class="px-2 py-1.5 border border-gray-200 rounded-lg text-xs hover:border-black transition-all">
+                                Apply
+                            </button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
+
+                    <!-- Payment Options Container -->
+                    <div id="paymentOptionsContainer" class="mb-3 text-xs">
+                        <!-- Saved payment methods will be rendered here -->
+                    </div>
+
+                    <!-- New Payment Form (shown if user selects "new") -->
+                    <div id="newPaymentForm" class="space-y-2 mb-3">
                         <div class="relative">
-                            <input 
-                                type="text" 
-                                name="expiry" 
-                                placeholder="MM/YY"
-                                value="${formValues.expiry}" 
-                                class="w-full pl-10 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                                required
-                            />
-                            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
+                            <div class="relative flex items-center">
+                                <input 
+                                    type="text" 
+                                    id="cardNumber"
+                                    name="cardNumber" 
+                                    placeholder="Card Number" 
+                                    value="${formValues.cardNumber}"
+                                    class="w-full pl-8 pr-12 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
+                                    required
+                                />
+                                <div class="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                    </svg>
+                                </div>
+                                <div id="cardTypeIcon" class="absolute right-2.5 top-1/2 transform -translate-y-1/2 h-5 w-8">
+                                    <!-- Card type icon will be displayed here -->
+                                </div>
                             </div>
                         </div>
-                        <div class="relative">
-                            <input 
-                                type="text" 
-                                name="cvv" 
-                                placeholder="CVV"
-                                value="${formValues.cvv}" 
-                                class="w-full pl-10 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                                required
-                                maxlength="4"
-                            />
-                            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="relative">
+                                <input 
+                                    type="text" 
+                                    name="expiry" 
+                                    placeholder="MM/YY" 
+                                    value="${formValues.expiry}"
+                                    class="w-full pl-8 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
+                                    required
+                                />
+                                <div class="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <input 
+                                    type="text" 
+                                    name="cvv" 
+                                    placeholder="CVV" 
+                                    value="${formValues.cvv}"
+                                    class="w-full pl-8 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
+                                    required
+                                    maxlength="4"
+                                />
+                                <div class="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Order Total -->
-                <div class="space-y-2 mb-5 text-sm">
-                    <div class="flex justify-between text-gray-500">
-                        <span>Subtotal</span>
-                        <span>$${subtotal.toFixed(2)}</span>
+                    <!-- Order Total -->
+                    <div class="space-y-1 mb-3 text-xs">
+                        <div class="flex justify-between text-gray-500">
+                            <span>Subtotal</span>
+                            <span>$${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div class="flex justify-between text-gray-500">
+                            <span>Tax (6%)</span>
+                            <span>$${tax.toFixed(2)}</span>
+                        </div>
+                        <div class="flex justify-between text-sm font-medium pt-1 border-t">
+                            <span>Total</span>
+                            <span>$${total.toFixed(2)}</span>
+                        </div>
                     </div>
-                    <div class="flex justify-between text-gray-500">
-                        <span>Tax (6%)</span>
-                        <span>$${tax.toFixed(2)}</span>
-                    </div>
-                    <div class="flex justify-between text-base font-medium pt-2 border-t">
-                        <span>Total</span>
-                        <span>$${total.toFixed(2)}</span>
-                    </div>
-                </div>
 
-                <button 
-                    onclick="completeBooking()"
-                    class="w-full py-3.5 bg-black text-white font-medium rounded-lg hover:bg-gray-900 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-black"
-                >
-                    Complete Booking • $${total.toFixed(2)}
-                </button>
+                    <button 
+                        onclick="completeBooking()"
+                        class="w-full py-2 bg-black text-white font-medium rounded-lg hover:bg-gray-900 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                    >
+                        Complete Booking • $${total.toFixed(2)}
+                    </button>
+                </div>
             </div>
         </div>
     `;
@@ -1556,6 +1606,23 @@ function goToCheckout() {
     
     // Initialize input formatting
     setTimeout(initializeFormattingListeners, 500);
+}
+
+function editAppointment(serviceId) {
+    // Find the item in the cart
+    const cart = getCartItems();
+    const item = cart.items.find(item => item.service && item.service.Id === serviceId);
+    
+    if (item) {
+        // Set the selected service and staff
+        selectedService = item.service;
+        selectedStaff = item.staff;
+        
+        // Go back to the date selection screen
+        fetchAvailableDates();
+    } else {
+        console.error(`Could not find service with ID ${serviceId} in cart`);
+    }
 }
 
 function togglePromoCode() {
@@ -1687,6 +1754,7 @@ function completeBooking() {
     });
 }
 
+// Add a function to display booking confirmation
 function showBookingConfirmation(bookingData) {
     const container = document.getElementById("mindbody-booking-widget");
     
@@ -1704,11 +1772,11 @@ function showBookingConfirmation(bookingData) {
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 text-left">
                 <h3 class="font-medium mb-4">Appointment Details</h3>
                 <div class="space-y-2 text-gray-600">
-                    ${bookingData.appointment ? `
-                        <p><span class="font-medium">Service:</span> ${bookingData.appointment.SessionTypeName || 'Booked Service'}</p>
-                        <p><span class="font-medium">Date:</span> ${new Date(bookingData.appointment.StartDateTime).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-                        <p><span class="font-medium">Time:</span> ${new Date(bookingData.appointment.StartDateTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</p>
-                        <p><span class="font-medium">Location:</span> ${bookingData.appointment.Location?.Name || 'Our Location'}</p>
+                    ${bookingData.appointments && bookingData.appointments.length > 0 ? `
+                        <p><span class="font-medium">Service:</span> ${bookingData.appointments[0].SessionTypeName || 'Booked Service'}</p>
+                        <p><span class="font-medium">Date:</span> ${new Date(bookingData.appointments[0].StartDateTime).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+                        <p><span class="font-medium">Time:</span> ${new Date(bookingData.appointments[0].StartDateTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</p>
+                        <p><span class="font-medium">Location:</span> ${bookingData.appointments[0].Location?.Name || 'Our Location'}</p>
                     ` : ''}
                 </div>
             </div>
@@ -1721,6 +1789,24 @@ function showBookingConfirmation(bookingData) {
                 >
                     Book Another Appointment
                 </button>
+            </div>
+        </div>
+    `;
+}
+
+function renderProgressHeader(currentStep) {
+    return `
+        <style>
+            .wp-block-group{padding-top:0!important;}
+        </style>
+        <div class="bg-gradient-to-r from-gray-50 to-white rounded-xl p-6 mb-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="w-2 h-2 rounded-full ${currentStep >= 1 ? 'bg-black' : 'bg-gray-300'}"></div>
+                    <div class="w-2 h-2 rounded-full ${currentStep >= 2 ? 'bg-black' : 'bg-gray-300'}"></div>
+                    <div class="w-2 h-2 rounded-full ${currentStep >= 3 ? 'bg-black' : 'bg-gray-300'}"></div>
+                </div>
+                <div class="text-sm font-medium text-gray-500">Step ${currentStep} of 3</div>
             </div>
         </div>
     `;

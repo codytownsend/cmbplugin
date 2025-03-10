@@ -3,7 +3,7 @@
  * Plugin Name: Mindbody Booking App
  * Plugin URI:  https://thetoxtechnique.com
  * Description: A custom WordPress booking tool using the Mindbody API.
- * Version:     1.3.0
+ * Version:     1.4.0
  * Author:      Cody Townsend
  * Author URI:  https://doe.media
  * License:     GPL-2.0+
@@ -73,6 +73,18 @@ function mindbody_get_valid_token() {
     }
 
     return $token;
+}
+
+// Get valid staff token - prefer this for admin operations
+function mindbody_get_valid_staff_token() {
+    // First try the dedicated staff token function
+    $staff_token = mindbody_get_staff_token();
+    if ($staff_token) {
+        return $staff_token;
+    }
+    
+    // Fall back to the regular token if staff token fails
+    return mindbody_get_valid_token();
 }
 
 // Add endpoint to verify auth status
@@ -154,7 +166,7 @@ function get_mindbody_client_by_email($email) {
     return null;
 }
 
-// Add endpoint to verify availability
+// Fixed verify availability endpoint
 function mindbody_verify_availability() {
     // Ensure we're getting JSON input
     $content_type = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
@@ -196,7 +208,8 @@ function mindbody_verify_availability() {
         $params = [
             "request.sessionTypeId" => $json_data['serviceId'],
             "request.startDateTime" => $datetime,
-            "request.endDateTime" => $datetime
+            "request.endDateTime" => $datetime,
+            "request.locationId" => -99 // Fixed location ID
         ];
         
         if (!empty($json_data['staffId'])) {
@@ -263,7 +276,11 @@ function mindbody_verify_availability() {
 add_action('wp_ajax_mindbody_verify_availability', 'mindbody_verify_availability');
 add_action('wp_ajax_nopriv_mindbody_verify_availability', 'mindbody_verify_availability');
 
-// Fetch session types
+/**
+ * Get session types - the source of truth for appointment types
+ * 
+ * @return array Array of session types
+ */
 function mindbody_get_session_types() {
     $credentials = mindbody_get_api_credentials();
     $url = "https://api.mindbodyonline.com/public/v6/site/sessiontypes";
@@ -278,76 +295,115 @@ function mindbody_get_session_types() {
     ];
 
     $response = wp_remote_get($url, $args);
+    
+    if (is_wp_error($response)) {
+        error_log("Error fetching session types: " . $response->get_error_message());
+        return [];
+    }
+    
     $body = json_decode(wp_remote_retrieve_body($response), true);
-    // Log for debugging if needed
-    error_log("Session Types Response: " . print_r($body, true));
+    
     return $body['SessionTypes'] ?? [];
 }
 
-function mindbody_get_sale_services_by_session_types() {
-    // Get all session types and build an array of unique IDs.
-    $sessionTypes = mindbody_get_session_types();
-    $sessionTypeIds = [];
-    foreach ($sessionTypes as $type) {
-        if (!in_array($type['Id'], $sessionTypeIds)) {
-            $sessionTypeIds[] = $type['Id'];
+/**
+ * Get appointable services with pricing
+ * Following proper Mindbody workflow
+ */
+function mindbody_get_appointable_services() {
+    // Get a valid staff token for authentication
+    $auth_token = mindbody_get_staff_token();
+    if (!$auth_token) {
+        $auth_token = mindbody_get_valid_token();
+    }
+    
+    if (!$auth_token) {
+        wp_send_json_error(['message' => 'Authentication failed']);
+        return;
+    }
+    
+    // Step 1: Get Session Types - these are the appointment types
+    $session_types = mindbody_get_session_types();
+    
+    if (empty($session_types)) {
+        wp_send_json_error(['message' => 'No session types found']);
+        return;
+    }
+    
+    // Filter only appointment session types (Type = 'Service')
+    $appointable_services = array_filter($session_types, function($type) {
+        return isset($type['Type']) && $type['Type'] === 'Service';
+    });
+    
+    if (empty($appointable_services)) {
+        // If none are explicitly service types, use all session types
+        $appointable_services = $session_types;
+    }
+    
+    // Ensure the services have prices
+    $default_prices = [
+        '60 Min 1on1' => 65,
+        'Personal Training' => 65,
+        '60 min 2on1' => 40, 
+        '2on1' => 40,
+        '60 min 3on1' => 30,
+        '3on1' => 30,
+        'Nutrition' => 30,
+        'Consult' => 0,
+        'Tour' => 0,
+        '90 min' => 100,
+        '60 min' => 80,
+        '120 min' => 120
+    ];
+    
+    foreach ($appointable_services as &$service) {
+        // If it has a price already, keep it
+        if (isset($service['Price']) && $service['Price'] > 0) {
+            continue;
+        }
+        
+        // Otherwise, try to match by name
+        foreach ($default_prices as $keyword => $price) {
+            if (stripos($service['Name'], $keyword) !== false) {
+                $service['Price'] = $price;
+                break;
+            }
+        }
+        
+        // Default for any remaining services without prices
+        if (!isset($service['Price']) || $service['Price'] <= 0) {
+            $service['Price'] = 65; // Default personal training price
         }
     }
     
-    $credentials = mindbody_get_api_credentials();
-    $url = "https://api.mindbodyonline.com/public/v6/sale/services";
-    
-    // Build query parameters.
-    $params = [
-        'request.hideRelatedPrograms'         => 'false',
-        'request.includeDiscontinued'           => 'false',
-        'request.includeSaleInContractOnly'     => 'false',
-        'request.sellOnline'                    => 'false'
-    ];
-    foreach ($sessionTypeIds as $index => $id) {
-        $params["request.sessionTypeIds[$index]"] = $id;
-    }
-    
-    $query = http_build_query($params);
-    $finalUrl = $url . "?" . $query;
-    
-    error_log("Fetching sale services from: $finalUrl");
-    $args = [
-        'headers' => [
-            'Content-Type' => 'application/json',
-            'Api-Key'      => $credentials['api_key'],
-            'SiteId'       => $credentials['site_id']
-        ],
-        'timeout' => 15
-    ];
-    
-    $response = wp_remote_get($finalUrl, $args);
-    $body = json_decode(wp_remote_retrieve_body($response), true);
-    error_log("Sale Services Response: " . print_r($body, true));
-    
-    return $body['Services'] ?? [];
+    wp_send_json_success(array_values($appointable_services));
 }
+add_action('wp_ajax_mindbody_get_appointable_services', 'mindbody_get_appointable_services');
+add_action('wp_ajax_nopriv_mindbody_get_appointable_services', 'mindbody_get_appointable_services');
 
-// For testing purposes, create an endpoint:
-function test_sale_services_by_session_types() {
-    $services = mindbody_get_sale_services_by_session_types();
-    wp_send_json_success($services);
-}
-add_action('wp_ajax_test_sale_services_by_session_types', 'test_sale_services_by_session_types');
-add_action('wp_ajax_nopriv_test_sale_services_by_session_types', 'test_sale_services_by_session_types');
-
-
-// Fetch bookable items
+/**
+ * Get bookable items based on session types
+ * This follows the proper Mindbody API workflow
+ */
 function mindbody_get_bookable_items() {
-    $auth_token = mindbody_get_valid_token();
+    $auth_token = mindbody_get_valid_staff_token();
     if (!$auth_token) {
         wp_send_json_error(['message' => 'Authentication failed.']);
+        return;
     }
 
+    // Get session types to determine bookable services
     $session_types = mindbody_get_session_types();
-    $session_type_ids = array_map(fn($type) => $type['Id'], $session_types);
+    $session_type_ids = array_map(function($type) {
+        return $type['Id'];
+    }, $session_types);
 
-    $params = [];
+    // Build query parameters - add the fixed location ID
+    $params = [
+        "request.locationId" => -99 // Fixed location ID
+    ];
+    
+    // Add session type IDs
     foreach ($session_type_ids as $index => $id) {
         $params["request.sessionTypeIds[$index]"] = $id;
     }
@@ -364,6 +420,13 @@ function mindbody_get_bookable_items() {
     ];
 
     $response = wp_remote_get($url, $args);
+    
+    if (is_wp_error($response)) {
+        error_log("Error fetching bookable items: " . $response->get_error_message());
+        wp_send_json_error(['message' => 'Error fetching bookable items: ' . $response->get_error_message()]);
+        return;
+    }
+    
     $body = json_decode(wp_remote_retrieve_body($response), true);
 
     // Organize services and staff
@@ -401,80 +464,8 @@ function mindbody_get_bookable_items() {
 
     wp_send_json_success(array_values($services));
 }
-
 add_action('wp_ajax_mindbody_get_bookable_items', 'mindbody_get_bookable_items');
 add_action('wp_ajax_nopriv_mindbody_get_bookable_items', 'mindbody_get_bookable_items');
-
-function mindbody_get_service_price() {
-    $auth_token = mindbody_get_valid_token();
-    if (!$auth_token) {
-        wp_send_json_error(['message' => 'Authentication failed.']);
-    }
-    
-    $service_id = isset($_GET['serviceId']) ? sanitize_text_field($_GET['serviceId']) : '';
-    
-    if (empty($service_id)) {
-        wp_send_json_error(['message' => 'Service ID is required.']);
-    }
-    
-    // First try to get price from session types
-    $session_types = mindbody_get_session_types();
-    foreach ($session_types as $type) {
-        if ($type['Id'] == $service_id && isset($type['Price'])) {
-            wp_send_json_success($type['Price']);
-            return;
-        }
-    }
-    
-    // If not found, try to get from sale services
-    $sale_services = mindbody_get_sale_services_by_session_types();
-    foreach ($sale_services as $service) {
-        if ($service['ProgramId'] == $service_id && isset($service['Price'])) {
-            wp_send_json_success($service['Price']);
-            return;
-        }
-    }
-    
-    // If still not found, make a direct API call for this specific service
-    $url = "https://api.mindbodyonline.com/public/v6/site/sessiontypes/{$service_id}";
-    
-    $args = [
-        'headers' => [
-            'Content-Type' => 'application/json',
-            'Api-Key' => get_option('mindbody_api_key'),
-            'SiteId' => get_option('mindbody_site_id'),
-            'Authorization' => "Bearer $auth_token"
-        ],
-        'timeout' => 15
-    ];
-    
-    $response = wp_remote_get($url, $args);
-    $body = json_decode(wp_remote_retrieve_body($response), true);
-    
-    if (!is_wp_error($response) && !empty($body) && isset($body['Price'])) {
-        wp_send_json_success($body['Price']);
-    } else {
-        // Try one more approach using sale/services endpoint
-        $params = http_build_query([
-            'request.sessionTypeIds[0]' => $service_id,
-        ]);
-        
-        $url = "https://api.mindbodyonline.com/public/v6/sale/services?{$params}";
-        
-        $response = wp_remote_get($url, $args);
-        $body = json_decode(wp_remote_retrieve_body($response), true);
-        
-        if (!is_wp_error($response) && !empty($body['Services']) && isset($body['Services'][0]['Price'])) {
-            wp_send_json_success($body['Services'][0]['Price']);
-        } else {
-            // Default fallback price
-            wp_send_json_success(95);
-        }
-    }
-}
-
-add_action('wp_ajax_mindbody_get_service_price', 'mindbody_get_service_price');
-add_action('wp_ajax_nopriv_mindbody_get_service_price', 'mindbody_get_service_price');
 
 // Fetch available dates
 function mindbody_get_available_dates() {
@@ -485,7 +476,7 @@ function mindbody_get_available_dates() {
 
     $sessionTypeId = isset($_GET['sessionTypeId']) ? sanitize_text_field($_GET['sessionTypeId']) : '';
     $staffId = isset($_GET['staffId']) ? sanitize_text_field($_GET['staffId']) : '';
-    $locationId = isset($_GET['locationId']) ? sanitize_text_field($_GET['locationId']) : '';
+    $locationId = isset($_GET['locationId']) ? sanitize_text_field($_GET['locationId']) : '-99'; // Default to -99
 
     $startDate = isset($_GET['startDate']) ? sanitize_text_field($_GET['startDate']) : date('Y-m-d') . 'T00:00:00Z';
     $endDate = isset($_GET['endDate']) ? sanitize_text_field($_GET['endDate']) : date('Y-m-d', strtotime('+30 days')) . 'T23:59:59Z';
@@ -494,14 +485,12 @@ function mindbody_get_available_dates() {
          . http_build_query([
             'request.sessionTypeId' => $sessionTypeId,
             'request.startDate' => $startDate,
-            'request.endDate' => $endDate
+            'request.endDate' => $endDate,
+            'request.locationId' => $locationId
          ]);
 
     if (!empty($staffId)) {
         $url .= "&request.staffId={$staffId}";
-    }
-    if (!empty($locationId)) {
-        $url .= "&request.locationId={$locationId}";
     }
 
     $args = [
@@ -526,15 +515,11 @@ function mindbody_get_available_dates() {
 
     wp_send_json_success($body['AvailableDates']);
 }
-
-// Register AJAX handlers
 add_action('wp_ajax_mindbody_get_available_dates', 'mindbody_get_available_dates');
 add_action('wp_ajax_nopriv_mindbody_get_available_dates', 'mindbody_get_available_dates');
 
 /**
  * AJAX handler to fetch available time slots for a selected date.
- * It uses the Mindbody "bookableitems" endpoint with start/end date/time parameters
- * to filter the available times for the given service (sessionTypeId) and staff.
  */
 function mindbody_get_available_slots() {
     $auth_token = mindbody_get_valid_token();
@@ -562,6 +547,7 @@ function mindbody_get_available_slots() {
         "request.sessionTypeIds[0]" => $sessionTypeId,
         "request.startDateTime"     => $startDateTime,
         "request.endDateTime"       => $endDateTime,
+        "request.locationId"        => -99 // Fixed location ID
     ];
     
     if (!empty($staffId)) {
@@ -610,10 +596,8 @@ function mindbody_get_available_slots() {
     
     wp_send_json_success($timeSlots);
 }
-
 add_action('wp_ajax_mindbody_get_available_slots', 'mindbody_get_available_slots');
 add_action('wp_ajax_nopriv_mindbody_get_available_slots', 'mindbody_get_available_slots');
-
 
 // Login Handling
 function mindbody_wp_client_login() {
@@ -675,7 +659,6 @@ function mindbody_wp_client_login() {
 }
 add_action('wp_ajax_mindbody_wp_client_login', 'mindbody_wp_client_login');
 add_action('wp_ajax_nopriv_mindbody_wp_client_login', 'mindbody_wp_client_login');
-
 
 // User Registration Handling
 function mindbody_wp_client_register() {
@@ -757,7 +740,6 @@ function mindbody_get_client_by_email() {
 add_action('wp_ajax_mindbody_get_client_by_email', 'mindbody_get_client_by_email');
 add_action('wp_ajax_nopriv_mindbody_get_client_by_email', 'mindbody_get_client_by_email');
 
-
 function mindbody_get_saved_payment_methods() {
     // Verify that the user is logged in
     if (!is_user_logged_in()) {
@@ -796,6 +778,7 @@ function mindbody_get_saved_payment_methods() {
 add_action('wp_ajax_mindbody_get_saved_payment_methods', 'mindbody_get_saved_payment_methods');
 add_action('wp_ajax_nopriv_mindbody_get_saved_payment_methods', 'mindbody_get_saved_payment_methods');
 
+// Updated booking endpoint for multiple appointments
 function mindbody_book_appointment() {
     $data = json_decode(file_get_contents('php://input'), true);
     
@@ -836,6 +819,7 @@ function mindbody_book_appointment() {
             "ClientId" => $client_id,
             "SessionTypeId" => $appointment['serviceId'],
             "StaffId" => !empty($appointment['staffId']) ? $appointment['staffId'] : null,
+            "LocationId" => -99, // Fixed location ID 
             "StartDateTime" => $appointment['date'] . "T" . $appointment['time'] . ":00Z",
             "ApplyPayment" => true,
             "SendEmail" => true,
@@ -970,23 +954,157 @@ function mindbody_booking_shortcode() {
 }
 add_shortcode('mindbody_booking', 'mindbody_booking_shortcode');
 
-// Enqueue scripts
-function mindbody_booking_enqueue_scripts() {
-    // Ensure Tailwind CSS is loaded properly
-    wp_enqueue_style('mindbody-tailwind', 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css', [], null);
+// Function to test API connection with proper error logging
+function mindbody_test_api_connection_detailed() {
+    $credentials = mindbody_get_api_credentials();
+    $url = "https://api.mindbodyonline.com/public/v6/site/sites";
 
-    // Enqueue custom styles if needed
-    wp_enqueue_style('mindbody-custom-css', plugins_url('css/mindbody-booking.css', __FILE__), [], '1.0.0');
+    $args = [
+        'headers' => [
+            'Content-Type' => 'application/json',
+            'Api-Key' => $credentials['api_key'],
+            'SiteId' => $credentials['site_id']
+        ],
+        'timeout' => 15
+    ];
+
+    error_log("Testing API connection with: " . print_r($credentials, true));
+    $response = wp_remote_get($url, $args);
+    
+    if (is_wp_error($response)) {
+        error_log("API connection error: " . $response->get_error_message());
+        return [
+            'success' => false,
+            'message' => $response->get_error_message()
+        ];
+    }
+
+    $body = json_decode(wp_remote_retrieve_body($response), true);
+    $http_code = wp_remote_retrieve_response_code($response);
+    
+    error_log("API response code: " . $http_code);
+    error_log("API response body: " . print_r($body, true));
+    
+    if ($http_code == 200 && isset($body['Sites'])) {
+        return [
+            'success' => true,
+            'message' => 'API connection successful!',
+            'data' => $body
+        ];
+    } else {
+        return [
+            'success' => false,
+            'message' => 'API connection failed! Status: ' . $http_code,
+            'data' => $body
+        ];
+    }
+}
+
+// Enqueue scripts with cache busting
+function mindbody_booking_enqueue_scripts() {
+    // Version for cache busting
+    $version = defined('WP_DEBUG') && WP_DEBUG ? time() : '1.4.0';
+    
+    // Ensure Tailwind CSS is loaded properly
+    wp_enqueue_style('mindbody-tailwind', 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css', [], $version);
+
+    // Enqueue custom styles
+    wp_enqueue_style('mindbody-custom-css', plugins_url('css/mindbody.css', __FILE__), [], $version);
 
     // Enqueue JavaScript
-    wp_enqueue_script('mindbody-booking-script', plugins_url('js/mindbody-booking.js', __FILE__), ['jquery'], '1.3.0', true);
+    wp_enqueue_script('mindbody-booking-script', plugins_url('js/mindbody-booking.js', __FILE__), ['jquery'], $version, true);
 
     // Localize script for AJAX calls
     wp_localize_script('mindbody-booking-script', 'mindbody_booking', [
-        'ajax_url' => admin_url('admin-ajax.php')
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'plugin_url' => plugins_url('', __FILE__), // Add plugin URL for asset loading
+        'nonce' => wp_create_nonce('mindbody_booking_nonce'),
+        'debug' => defined('WP_DEBUG') && WP_DEBUG,
+        'version' => $version
     ]);
 }
 add_action('wp_enqueue_scripts', 'mindbody_booking_enqueue_scripts');
 
+// Debug endpoint to test service fetching
+function mindbody_debug_services() {
+    error_log("Running Mindbody debug services function");
+    
+    // Test authentication
+    error_log("Testing staff token:");
+    $staff_token = mindbody_get_staff_token();
+    error_log("Staff token result: " . ($staff_token ? "SUCCESS" : "FAILED"));
+    
+    error_log("Testing regular token:");
+    $regular_token = mindbody_get_valid_token();
+    error_log("Regular token result: " . ($regular_token ? "SUCCESS" : "FAILED"));
+    
+    // Try to fetch services directly
+    error_log("Fetching session types...");
+    try {
+        $session_types = mindbody_get_session_types();
+        error_log("Found " . count($session_types) . " session types");
+        
+        $result = [
+            'success' => true,
+            'session_types_count' => count($session_types),
+            'staff_auth' => $staff_token ? true : false,
+            'regular_auth' => $regular_token ? true : false,
+            'sample_session_types' => array_slice($session_types, 0, 3)
+        ];
+        
+        // Now try bookable items
+        error_log("Fetching bookable items...");
+        $auth_token = $staff_token ?: $regular_token;
+        $credentials = mindbody_get_api_credentials();
+        
+        $params = ["request.locationId" => -99]; // Fixed location ID
+        // Add first 3 session type IDs
+        for ($i = 0; $i < min(3, count($session_types)); $i++) {
+            $params["request.sessionTypeIds[$i]"] = $session_types[$i]['Id'];
+        }
+        
+        $url = "https://api.mindbodyonline.com/public/v6/appointment/bookableitems?" . http_build_query($params);
+        $args = [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Api-Key' => $credentials['api_key'],
+                'SiteId' => $credentials['site_id'],
+                'Authorization' => "Bearer $auth_token"
+            ],
+            'timeout' => 15
+        ];
+        
+        $response = wp_remote_get($url, $args);
+        
+        if (is_wp_error($response)) {
+            error_log("Bookable items error: " . $response->get_error_message());
+            $result['bookable_items_error'] = $response->get_error_message();
+        } else {
+            $status = wp_remote_retrieve_response_code($response);
+            $body = json_decode(wp_remote_retrieve_body($response), true);
+            
+            if ($status !== 200) {
+                error_log("Bookable items API error: " . wp_remote_retrieve_body($response));
+                $result['bookable_items_error'] = "Status $status";
+            } else {
+                $availabilities_count = count($body['Availabilities'] ?? []);
+                error_log("Found $availabilities_count availabilities");
+                $result['bookable_items_count'] = $availabilities_count;
+                
+                if ($availabilities_count > 0) {
+                    $result['sample_availability'] = $body['Availabilities'][0];
+                }
+            }
+        }
+        
+        wp_send_json_success($result);
+        
+    } catch (Exception $e) {
+        error_log("Exception in debug services: " . $e->getMessage());
+        wp_send_json_error(['message' => 'Error: ' . $e->getMessage()]);
+    }
+}
+add_action('wp_ajax_mindbody_debug_services', 'mindbody_debug_services');
+add_action('wp_ajax_nopriv_mindbody_debug_services', 'mindbody_debug_services');
 
 require_once plugin_dir_path(__FILE__) . 'admin-settings.php';
