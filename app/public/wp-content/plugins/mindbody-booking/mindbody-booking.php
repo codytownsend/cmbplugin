@@ -1,160 +1,141 @@
 <?php
 /**
- * Plugin Name: Mindbody Booking App
+ * Plugin Name: Mindbody Booking System
  * Plugin URI:  https://thetoxtechnique.com
- * Description: A custom WordPress booking tool using the Mindbody API.
+ * Description: A custom booking plugin for Mindbody services
  * Version:     1.0.0
- * Author:      Your Name
- * Author URI:  https://example.com
+ * Author:      DOE
  * License:     GPL-2.0+
  */
 
+// Exit if accessed directly
 if (!defined('ABSPATH')) {
     exit;
 }
 
-// Define plugin constants
-define('MINDBODY_BOOKING_VERSION', '1.0.0');
-define('MINDBODY_BOOKING_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('MINDBODY_BOOKING_PLUGIN_URL', plugin_dir_url(__FILE__));
+// Plugin constants
+define('MB_BOOKING_VERSION', '1.0.0');
+define('MB_BOOKING_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('MB_BOOKING_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('MB_BOOKING_ASSETS_URL', MB_BOOKING_PLUGIN_URL . 'assets/');
 
-// Include required files
-require_once MINDBODY_BOOKING_PLUGIN_DIR . 'auth.php';
-require_once MINDBODY_BOOKING_PLUGIN_DIR . 'admin-settings.php';
-require_once MINDBODY_BOOKING_PLUGIN_DIR . 'includes/api-functions.php';
-require_once MINDBODY_BOOKING_PLUGIN_DIR . 'includes/booking-functions.php';
-require_once MINDBODY_BOOKING_PLUGIN_DIR . 'includes/shortcodes.php';
+// Include core files
+require_once MB_BOOKING_PLUGIN_DIR . 'includes/helpers.php';
+require_once MB_BOOKING_PLUGIN_DIR . 'includes/shortcodes.php';
+require_once MB_BOOKING_PLUGIN_DIR . 'includes/ajax-handlers.php';
 
-// Fetch API credentials
-function mindbody_get_api_credentials() {
-    return [
-        'username' => get_option('mindbody_staff_username', ''),
-        'password' => get_option('mindbody_staff_password', ''),
-        'api_key'  => get_option('mindbody_api_key', ''),
-        'site_id'  => get_option('mindbody_site_id', '')
-    ];
+// Include API classes
+require_once MB_BOOKING_PLUGIN_DIR . 'includes/api/api-client.php';
+require_once MB_BOOKING_PLUGIN_DIR . 'includes/api/auth.php';
+require_once MB_BOOKING_PLUGIN_DIR . 'includes/api/services.php';
+require_once MB_BOOKING_PLUGIN_DIR . 'includes/api/availability.php';
+require_once MB_BOOKING_PLUGIN_DIR . 'includes/api/booking.php';
+require_once MB_BOOKING_PLUGIN_DIR . 'includes/api/client.php';
+
+// Admin settings
+if (is_admin()) {
+    require_once MB_BOOKING_PLUGIN_DIR . 'admin/admin-settings.php';
 }
 
-// Activation hook
-register_activation_hook(__FILE__, 'mindbody_booking_activate');
+/**
+ * Main plugin class
+ */
+class Mindbody_Booking {
+    /**
+     * Instance of this class
+     */
+    private static $instance = null;
 
-function mindbody_booking_activate() {
-    // Create any necessary database tables or settings
-    add_option('mindbody_booking_version', MINDBODY_BOOKING_VERSION);
-    
-    // Add default options if they don't exist
-    if (!get_option('mindbody_api_key')) {
+    /**
+     * Return an instance of this class
+     */
+    public static function get_instance() {
+        if (null == self::$instance) {
+            self::$instance = new self;
+        }
+        return self::$instance;
+    }
+
+    /**
+     * Constructor
+     */
+    private function __construct() {
+        // Initialize plugin
+        add_action('init', array($this, 'init'));
+        
+        // Enqueue scripts and styles
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+        
+        // Register activation and deactivation hooks
+        register_activation_hook(__FILE__, array($this, 'activate'));
+        register_deactivation_hook(__FILE__, array($this, 'deactivate'));
+    }
+
+    /**
+     * Initialize the plugin
+     */
+    public function init() {
+        // Load text domain for internationalization
+        load_plugin_textdomain('mindbody-booking', false, dirname(plugin_basename(__FILE__)) . '/languages/');
+        
+        // Register shortcodes
+        MB_Booking_Shortcodes::register_shortcodes();
+    }
+
+    /**
+     * Enqueue scripts and styles
+     */
+    public function enqueue_scripts() {
+        // Only enqueue on pages with our shortcode
+        global $post;
+        if (is_a($post, 'WP_Post') && has_shortcode($post->post_content, 'mindbody_booking')) {
+            // Enqueue Tailwind CSS
+            wp_enqueue_style('tailwindcss', 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css', array(), MB_BOOKING_VERSION);
+            
+            // Main plugin styles
+            wp_enqueue_style('mindbody-booking-style', MB_BOOKING_ASSETS_URL . 'css/mindbody-booking.css', array('tailwindcss'), MB_BOOKING_VERSION);
+            
+            // Plugin scripts
+            wp_enqueue_script('mindbody-booking-utils', MB_BOOKING_ASSETS_URL . 'js/utils.js', array(), MB_BOOKING_VERSION, true);
+            wp_enqueue_script('mindbody-booking-service', MB_BOOKING_ASSETS_URL . 'js/service-selection.js', array('mindbody-booking-utils'), MB_BOOKING_VERSION, true);
+            wp_enqueue_script('mindbody-booking-date', MB_BOOKING_ASSETS_URL . 'js/date-selection.js', array('mindbody-booking-utils'), MB_BOOKING_VERSION, true);
+            wp_enqueue_script('mindbody-booking-time', MB_BOOKING_ASSETS_URL . 'js/time-selection.js', array('mindbody-booking-utils'), MB_BOOKING_VERSION, true);
+            wp_enqueue_script('mindbody-booking-checkout', MB_BOOKING_ASSETS_URL . 'js/checkout.js', array('mindbody-booking-utils'), MB_BOOKING_VERSION, true);
+            wp_enqueue_script('mindbody-booking-widget', MB_BOOKING_ASSETS_URL . 'js/booking-widget.js', array('mindbody-booking-utils', 'mindbody-booking-service', 'mindbody-booking-date', 'mindbody-booking-time', 'mindbody-booking-checkout'), MB_BOOKING_VERSION, true);
+            
+            // Localize script with AJAX URL and nonce
+            wp_localize_script('mindbody-booking-widget', 'mb_booking_data', array(
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('mb_booking_nonce'),
+                'plugin_url' => MB_BOOKING_PLUGIN_URL,
+                'debug' => defined('WP_DEBUG') && WP_DEBUG,
+                'version' => MB_BOOKING_VERSION
+            ));
+        }
+    }
+
+    /**
+     * Plugin activation
+     */
+    public function activate() {
+        // Create default options
         add_option('mindbody_api_key', '');
-    }
-    
-    if (!get_option('mindbody_site_id')) {
         add_option('mindbody_site_id', '');
-    }
-    
-    if (!get_option('mindbody_staff_username')) {
         add_option('mindbody_staff_username', '');
-    }
-    
-    if (!get_option('mindbody_staff_password')) {
         add_option('mindbody_staff_password', '');
+        
+        // Flush rewrite rules
+        flush_rewrite_rules();
+    }
+
+    /**
+     * Plugin deactivation
+     */
+    public function deactivate() {
+        // Flush rewrite rules
+        flush_rewrite_rules();
     }
 }
 
-// Deactivation hook
-register_deactivation_hook(__FILE__, 'mindbody_booking_deactivate');
-
-function mindbody_booking_deactivate() {
-    // Cleanup tasks (if any)
-}
-
-// Enqueue scripts and styles
-function mindbody_booking_enqueue_scripts() {
-    // Version for cache busting
-    $version = defined('WP_DEBUG') && WP_DEBUG ? time() : MINDBODY_BOOKING_VERSION;
-    
-    // Tailwind CSS
-    wp_enqueue_style('mindbody-tailwind', 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css', [], $version);
-    
-    // Custom CSS
-    wp_enqueue_style('mindbody-booking-css', MINDBODY_BOOKING_PLUGIN_URL . 'assets/css/mindbody-booking.css', ['mindbody-tailwind'], $version);
-    
-    // JavaScript
-    wp_enqueue_script('mindbody-booking-js', MINDBODY_BOOKING_PLUGIN_URL . 'assets/js/mindbody-booking.js', ['jquery'], $version, true);
-    
-    // Localize script with necessary data
-    wp_localize_script('mindbody-booking-js', 'mindbody_booking', [
-        'ajax_url' => admin_url('admin-ajax.php'),
-        'plugin_url' => MINDBODY_BOOKING_PLUGIN_URL,
-        'nonce' => wp_create_nonce('mindbody_booking_nonce'),
-        'debug' => defined('WP_DEBUG') && WP_DEBUG,
-        'version' => $version
-    ]);
-}
-add_action('wp_enqueue_scripts', 'mindbody_booking_enqueue_scripts');
-
-// Admin menu and settings
-function mindbody_booking_admin_menu() {
-    add_menu_page(
-        'Mindbody Booking', 
-        'Mindbody Booking', 
-        'manage_options', 
-        'mindbody-booking', 
-        'mindbody_booking_settings_page', 
-        'dashicons-calendar-alt'
-    );
-}
-add_action('admin_menu', 'mindbody_booking_admin_menu');
-
-// Check connection status
-function mindbody_check_connection_status() {
-    $credentials = mindbody_get_api_credentials();
-    
-    if (empty($credentials['api_key']) || empty($credentials['site_id'])) {
-        return false;
-    }
-    
-    // Basic check to see if we have token-generating capability
-    $token = mindbody_get_staff_token();
-    return !empty($token);
-}
-
-// Basic test function for debugging
-function mindbody_test_api() {
-    $credentials = mindbody_get_api_credentials();
-    $url = "https://api.mindbodyonline.com/public/v6/site/sites";
-    
-    $args = [
-        'headers' => [
-            'Content-Type' => 'application/json',
-            'Api-Key' => $credentials['api_key'],
-            'SiteId' => $credentials['site_id']
-        ],
-        'timeout' => 15
-    ];
-    
-    $response = wp_remote_get($url, $args);
-    
-    if (is_wp_error($response)) {
-        return [
-            'success' => false,
-            'message' => $response->get_error_message()
-        ];
-    }
-    
-    $body = json_decode(wp_remote_retrieve_body($response), true);
-    $http_code = wp_remote_retrieve_response_code($response);
-    
-    if ($http_code == 200 && isset($body['Sites'])) {
-        return [
-            'success' => true,
-            'message' => 'API connection successful!',
-            'data' => $body
-        ];
-    } else {
-        return [
-            'success' => false,
-            'message' => 'API connection failed! Status: ' . $http_code,
-            'data' => $body
-        ];
-    }
-}
+// Initialize the plugin
+Mindbody_Booking::get_instance();
