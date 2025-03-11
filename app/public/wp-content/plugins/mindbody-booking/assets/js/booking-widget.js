@@ -175,20 +175,22 @@ const MBBooking = {
      * @param {Array} items Bookable items data
      */
     processBookableItems: function(items) {
-        console.log('📊 Raw bookable items received:', items);
+        console.log('📊 Raw bookable items received count:', items.length);
+        
+        // Performance optimization: Only log first 20 items to prevent browser console overload
+        const sampleItems = items.slice(0, 20);
+        console.log('📊 Sample of bookable items (first 20):', sampleItems);
 
         const services = {};
+        let skippedCount = 0;
 
         items.forEach(item => {
             if (!item.SessionType || !item.SessionType.Id) {
-                console.warn('⚠️ Skipping invalid item:', item);
+                skippedCount++;
                 return; // Skip items that don't have a valid session type
             }
 
             const serviceId = item.SessionType.Id;
-            console.log('🔍 Processing item:', item);  
-            console.log('➡️ Found sessionTypeId:', serviceId);
-
             const serviceName = item.SessionType.Name || 'Unknown Service';
             const serviceDescription = item.SessionType.Description || 'No description available';
             const serviceDuration = item.SessionType.Duration ?? 0; // Ensure it's defined
@@ -205,14 +207,11 @@ const MBBooking = {
                     availableTimes: [],
                     staff: {}
                 };
-                console.log('✅ Added new service:', services[serviceId]);
             }
 
             // Ensure StartDateTime exists before pushing
             if (item.StartDateTime) {
                 services[serviceId].availableTimes.push(item.StartDateTime);
-            } else {
-                console.warn('⚠️ Missing StartDateTime for item:', item);
             }
 
             // Add staff member if provided
@@ -232,9 +231,13 @@ const MBBooking = {
         // Store processed services
         this.state.services = services;
 
-        console.log('📊 Processed services count:', Object.keys(services).length, services);
+        console.log('📊 Processed services count:', Object.keys(services).length);
+        console.log('⚠️ Skipped invalid items count:', skippedCount);
         
-        // Ensure cart exists before checking for items
+        // Log services for debugging
+        console.log('📊 Full services object:', services);
+        
+        // Check for items in the cart
         if (this.state.cart?.items?.length > 0) {
             const firstItem = this.state.cart.items[0];
 

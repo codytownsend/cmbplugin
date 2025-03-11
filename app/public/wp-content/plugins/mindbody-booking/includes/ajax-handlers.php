@@ -106,6 +106,9 @@ class MB_Booking_AJAX {
         
         $session_type_ids = explode(',', sanitize_text_field($_GET['session_type_ids']));
         
+        // Log session type IDs for debugging
+        error_log('Getting bookable items for session type IDs: ' . implode(', ', $session_type_ids));
+        
         // Get optional parameters
         $start_date = !empty($_GET['start_date']) ? sanitize_text_field($_GET['start_date']) : null;
         $end_date = !empty($_GET['end_date']) ? sanitize_text_field($_GET['end_date']) : null;
@@ -120,6 +123,9 @@ class MB_Booking_AJAX {
             $location_ids = explode(',', sanitize_text_field($_GET['location_ids']));
         }
         
+        // Set longer timeout for API request
+        set_time_limit(60); // Extend PHP execution time for larger requests
+        
         // Get services API
         $services_api = new MB_API_Services();
         
@@ -130,6 +136,9 @@ class MB_Booking_AJAX {
         if (is_wp_error($bookable_items)) {
             $this->send_error_response($bookable_items->get_error_message());
         }
+        
+        // Log the response size
+        error_log('Returning ' . count($bookable_items) . ' bookable items');
         
         // Return success response
         $this->send_success_response($bookable_items);

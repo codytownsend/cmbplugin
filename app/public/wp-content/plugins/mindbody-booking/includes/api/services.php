@@ -88,69 +88,107 @@ class MB_API_Services {
         $start_date_formatted = $start_date . 'T00:00:00Z';
         $end_date_formatted = $end_date . 'T23:59:59Z';
         
-        // Build query parameters
-        $params = array(
-            'request.startDate' => $start_date_formatted,
-            'request.endDate' => $end_date_formatted,
-            'request.locationId' => -99 // Default location ID
-        );
+        // Initialize combined availabilities array
+        $all_availabilities = array();
         
-        // Add session type IDs
-        foreach ($session_type_ids as $index => $id) {
-            $params["request.sessionTypeIds[$index]"] = $id;
-        }
+        // Process session types in smaller batches to avoid exceeding API limits
+        $batches = array_chunk($session_type_ids, 5);
         
-        // Add staff IDs if provided
-        if (!empty($staff_ids)) {
-            foreach ($staff_ids as $index => $id) {
-                $params["request.staffIds[$index]"] = $id;
-            }
-        }
-        
-        // Add location IDs if provided
-        if (!empty($location_ids)) {
-            // Remove default location ID
-            unset($params['request.locationId']);
+        foreach ($batches as $batch) {
+            // Build base query parameters
+            $params = array(
+                'request.startDate' => $start_date_formatted,
+                'request.endDate' => $end_date_formatted,
+                'request.limit' => 200 // Increase limit from default 100
+            );
             
-            // Add specified location IDs
-            foreach ($location_ids as $index => $id) {
-                $params["request.locationIds[$index]"] = $id;
+            // Add location ID if provided, otherwise use default
+            if (!empty($location_ids)) {
+                foreach ($location_ids as $index => $id) {
+                    $params["request.locationIds[$index]"] = $id;
+                }
+            } else {
+                $params['request.locationId'] = -99; // Default location ID
+            }
+            
+            // Add session type IDs for this batch
+            foreach ($batch as $index => $id) {
+                $params["request.sessionTypeIds[$index]"] = $id;
+            }
+            
+            // Add staff IDs if provided
+            if (!empty($staff_ids)) {
+                foreach ($staff_ids as $index => $id) {
+                    $params["request.staffIds[$index]"] = $id;
+                }
+            }
+            
+            // Initialize offset for pagination
+            $offset = 0;
+            $has_more = true;
+            
+            // Fetch all pages of results
+            while ($has_more) {
+                // Add offset parameter for pagination
+                $params['request.offset'] = $offset;
+                
+                // Make API request
+                $response = MB_API_Client::get('/appointment/bookableitems', $params);
+                
+                // Check for API error
+                if (is_wp_error($response)) {
+                    error_log('Error fetching bookable items: ' . $response->get_error_message());
+                    // Continue with next batch instead of returning error
+                    break;
+                }
+                
+                // Process availabilities
+                if (isset($response['Availabilities']) && is_array($response['Availabilities'])) {
+                    $availabilities = $response['Availabilities'];
+                    $count = count($availabilities);
+                    
+                    // Add to combined results
+                    $all_availabilities = array_merge($all_availabilities, $availabilities);
+                    
+                    // Log results for debugging
+                    error_log("Fetched $count availabilities for batch with offset $offset");
+                    
+                    // Check if we need another page (if we got the full limit amount)
+                    if ($count >= 200) {
+                        $offset += 200;
+                    } else {
+                        $has_more = false;
+                    }
+                } else {
+                    // No more availabilities
+                    $has_more = false;
+                }
             }
         }
         
-        // Make API request
-        $response = MB_API_Client::get('/appointment/bookableitems', $params);
-        
-        // Check for API error
-        if (is_wp_error($response)) {
-            return $response;
-        }
-        
-        // Check if availabilities exist in response
-        if (!isset($response['Availabilities']) || !is_array($response['Availabilities']) || empty($response['Availabilities'])) {
-            // If no availabilities, create synthetic entries from session types
+        // If no availabilities found, create synthetic entries from session types
+        if (empty($all_availabilities)) {
+            // Get session types to create synthetic entries
             $services_api = new MB_API_Services();
-            $session_types = $services_api->get_session_types(true, array(), true); // Get only appointment types
+            $session_types = $services_api->get_session_types(true);
             
-            $availabilities = array();
-            
-            // Convert session types to availabilities
             if (!is_wp_error($session_types)) {
                 foreach ($session_types as $session_type) {
                     if ($session_type['Type'] === 'Appointment') {
                         // Create a synthetic availability entry
-                        $availabilities[] = array(
+                        $all_availabilities[] = array(
                             'SessionType' => $session_type,
                             'Staff' => null // No staff assigned
                         );
                     }
                 }
             }
-            
-            return $availabilities;
         }
         
-        return $response['Availabilities'];
+        // Log the total number of availabilities found
+        error_log("Total availabilities found: " . count($all_availabilities));
+        
+        return $all_availabilities;
     }
     
     /**
