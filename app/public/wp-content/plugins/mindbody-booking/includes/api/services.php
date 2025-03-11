@@ -46,6 +46,19 @@ class MB_API_Services {
             return new WP_Error('invalid_response', 'Invalid response from API: SessionTypes not found');
         }
         
+        // ADD THIS FILTER: Filter session types to include only Appointment types
+        $filtered_session_types = array();
+        foreach ($response['SessionTypes'] as $session_type) {
+            if (isset($session_type['Type']) && $session_type['Type'] === 'Appointment') {
+                $filtered_session_types[] = $session_type;
+            } else {
+                error_log("⚠️ Skipping session type: " . print_r($session_type, true));
+            }
+        }
+        
+        // Replace original array with filtered array
+        $response['SessionTypes'] = $filtered_session_types;
+        
         // Process session types to ensure they have prices
         $session_types = $this->process_session_types_pricing($response['SessionTypes']);
         
@@ -114,8 +127,27 @@ class MB_API_Services {
         }
         
         // Check if availabilities exist in response
-        if (!isset($response['Availabilities']) || !is_array($response['Availabilities'])) {
-            return new WP_Error('invalid_response', 'Invalid response from API: Availabilities not found', $response);
+        if (!isset($response['Availabilities']) || !is_array($response['Availabilities']) || empty($response['Availabilities'])) {
+            // If no availabilities, create synthetic entries from session types
+            $services_api = new MB_API_Services();
+            $session_types = $services_api->get_session_types(true, array(), true); // Get only appointment types
+            
+            $availabilities = array();
+            
+            // Convert session types to availabilities
+            if (!is_wp_error($session_types)) {
+                foreach ($session_types as $session_type) {
+                    if ($session_type['Type'] === 'Appointment') {
+                        // Create a synthetic availability entry
+                        $availabilities[] = array(
+                            'SessionType' => $session_type,
+                            'Staff' => null // No staff assigned
+                        );
+                    }
+                }
+            }
+            
+            return $availabilities;
         }
         
         return $response['Availabilities'];

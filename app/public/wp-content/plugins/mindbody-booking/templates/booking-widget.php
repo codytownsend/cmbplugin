@@ -67,4 +67,5 @@ if (!defined('ABSPATH')) {
     <template id="mb-confirmation-template">
         <?php include MB_BOOKING_PLUGIN_DIR . 'templates/confirmation.php'; ?>
     </template>
+    <script src="assets/js/debugger.js"></script>
 </div>

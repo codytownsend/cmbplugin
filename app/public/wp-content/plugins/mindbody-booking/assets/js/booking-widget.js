@@ -124,6 +124,13 @@ const MBBooking = {
         
         // Get session type IDs
         const sessionTypeIds = this.state.sessionTypes.map(type => type.Id).join(',');
+
+        console.log('📊 Fetching bookable items for sessionTypeIds:', sessionTypeIds);
+
+        if (!sessionTypeIds) {
+            console.error('❌ No sessionTypeIds found, skipping fetch.');
+            return;
+        }
         
         // Build query parameters
         const params = new URLSearchParams({
@@ -146,18 +153,18 @@ const MBBooking = {
         fetch(`${mb_booking_data.ajax_url}?${params.toString()}`)
             .then(response => response.json())
             .then(data => {
+                console.log('📊 Bookable items API response:', data);
+
                 if (data.success) {
-                    // Process services
                     this.processBookableItems(data.data);
-                    
-                    // Show service selection
                     this.showServiceSelection();
                 } else {
+                    console.error('❌ API returned failure:', data);
                     this.showError('Failed to load available services', data.data?.message);
                 }
             })
             .catch(error => {
-                console.error('Error loading bookable items:', error);
+                console.error('❌ Error loading bookable items:', error);
                 this.showError('Failed to load available services', 'Please try again later');
             });
     },
@@ -168,34 +175,51 @@ const MBBooking = {
      * @param {Array} items Bookable items data
      */
     processBookableItems: function(items) {
-        // Organize services and staff
+        console.log('📊 Raw bookable items received:', items);
+
         const services = {};
-        
-        // Process each availability item
+
         items.forEach(item => {
+            if (!item.SessionType || !item.SessionType.Id) {
+                console.warn('⚠️ Skipping invalid item:', item);
+                return; // Skip items that don't have a valid session type
+            }
+
             const serviceId = item.SessionType.Id;
-            const serviceName = item.SessionType.Name;
-            
+            console.log('🔍 Processing item:', item);  
+            console.log('➡️ Found sessionTypeId:', serviceId);
+
+            const serviceName = item.SessionType.Name || 'Unknown Service';
+            const serviceDescription = item.SessionType.Description || 'No description available';
+            const serviceDuration = item.SessionType.Duration ?? 0; // Ensure it's defined
+            const servicePrice = item.Price?.Amount ?? 0; // Ensure price fallback
+
             // Create service entry if it doesn't exist
             if (!services[serviceId]) {
-                // Find matching session type for pricing
-                const sessionType = this.state.sessionTypes.find(type => type.Id === serviceId);
-                
                 services[serviceId] = {
                     id: serviceId,
                     name: serviceName,
-                    description: item.SessionType.Description || '',
-                    price: sessionType?.Price || 0,
-                    duration: item.SessionType.Duration || 60,
+                    description: serviceDescription,
+                    price: servicePrice,
+                    duration: serviceDuration,
+                    availableTimes: [],
                     staff: {}
                 };
+                console.log('✅ Added new service:', services[serviceId]);
             }
-            
+
+            // Ensure StartDateTime exists before pushing
+            if (item.StartDateTime) {
+                services[serviceId].availableTimes.push(item.StartDateTime);
+            } else {
+                console.warn('⚠️ Missing StartDateTime for item:', item);
+            }
+
             // Add staff member if provided
-            if (item.Staff) {
+            if (item.Staff && item.Staff.Id) {
                 const staffId = item.Staff.Id;
-                const staffName = item.Staff.Name;
-                
+                const staffName = item.Staff.Name || 'Unknown Staff';
+
                 if (!services[serviceId].staff[staffId]) {
                     services[serviceId].staff[staffId] = {
                         id: staffId,
@@ -204,23 +228,28 @@ const MBBooking = {
                 }
             }
         });
-        
+
         // Store processed services
         this.state.services = services;
+
+        console.log('📊 Processed services count:', Object.keys(services).length, services);
         
-        // Check if there's a continuing booking in the cart
-        if (this.state.cart.items.length > 0) {
+        // Ensure cart exists before checking for items
+        if (this.state.cart?.items?.length > 0) {
             const firstItem = this.state.cart.items[0];
-            this.state.selectedService = services[firstItem.serviceId] || null;
-            this.state.selectedStaff = firstItem.staffId ? 
-                (this.state.selectedService?.staff[firstItem.staffId] || null) : null;
-            this.state.selectedDate = firstItem.date || null;
-            this.state.selectedTime = firstItem.time || null;
-            
-            // If we have all booking details, go to checkout
-            if (this.state.selectedService && this.state.selectedDate && this.state.selectedTime) {
-                this.goToCheckout();
-                return;
+
+            if (firstItem.serviceId && services[firstItem.serviceId]) {
+                this.state.selectedService = services[firstItem.serviceId] || null;
+                this.state.selectedStaff = firstItem.staffId ? 
+                    (this.state.selectedService?.staff[firstItem.staffId] || null) : null;
+                this.state.selectedDate = firstItem.date || null;
+                this.state.selectedTime = firstItem.time || null;
+
+                // If we have all booking details, go to checkout
+                if (this.state.selectedService && this.state.selectedDate && this.state.selectedTime) {
+                    this.goToCheckout();
+                    return;
+                }
             }
         }
     },
@@ -343,6 +372,10 @@ const MBBooking = {
         
         // Add event listeners for service selection
         this.setupServiceSelectionEvents();
+
+        setTimeout(() => {
+            console.log('📊 Services rendered:', document.querySelectorAll('.mb-service').length);
+        }, 500);
     },
     
     /**
