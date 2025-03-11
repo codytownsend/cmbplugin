@@ -4,13 +4,10 @@
 
 /* Base Styles */
 .mb-booking-widget {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-    color: #333;
-    line-height: 1.5;
-    max-width: 1000px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
-    box-sizing: border-box;
+    position: relative;
 }
 
 .mb-booking-widget * {
@@ -299,14 +296,14 @@
 }
 
 .mb-category {
-    margin-bottom: 2rem;
+    margin-bottom: 30px;
 }
 
 .mb-category-title {
-    font-size: 1.3rem;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e5e7eb;
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .mb-services {
@@ -316,20 +313,30 @@
 }
 
 .mb-service {
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    overflow: hidden;
     transition: all 0.2s ease;
-    background-color: #fff;
 }
 
 .mb-service:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.mb-service-selected {
-    border-color: #000;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+.mb-service-select {
+    padding: 8px 16px;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.mb-service-select:hover {
+    background-color: #e9ecef;
+}
+
+.mb-service-select.mb-selected {
+    background-color: #28a745;
+    border-color: #28a745;
 }
 
 .mb-service-header {
@@ -386,9 +393,38 @@
     border-top: 1px solid #f3f4f6;
 }
 
+.mb-staff-selection {
+    margin-top: 20px;
+}
+
+.mb-selected-service-info {
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
 .mb-service-staff {
     padding: 1rem;
     border-top: 1px solid #f3f4f6;
+}
+
+.mb-staff-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.mb-staff-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
 }
 
 .mb-staff-options {
@@ -438,6 +474,23 @@
 .mb-staff-name {
     font-size: 0.9rem;
     font-weight: 500;
+}
+
+.mb-staff-select {
+    padding: 6px 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.mb-back-button {
+    padding: 8px 16px;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 20px;
 }
 
 .mb-staff-subtitle {
@@ -960,6 +1013,65 @@
 
 .mb-complete-btn {
     width: 100%;
+}
+
+/* Message styles */
+.mb-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 400px;
+    z-index: 9999;
+    animation: slide-in 0.3s ease;
+}
+
+.mb-message-content {
+    padding: 15px 20px;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mb-message-info .mb-message-content {
+    background-color: #cce5ff;
+    border: 1px solid #b8daff;
+    color: #004085;
+}
+
+.mb-message-error .mb-message-content {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.mb-message-success .mb-message-content {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.mb-message-close {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    margin-left: 10px;
+    padding: 0;
+    line-height: 1;
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 /* Confirmation */
