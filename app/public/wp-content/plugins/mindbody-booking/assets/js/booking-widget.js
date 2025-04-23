@@ -1,7 +1,7 @@
 /**
- * Mindbody Booking Widget
+ * Mindbody Booking Widget - Enhanced Version
  * 
- * Main JavaScript file for the booking widget
+ * A modern, streamlined implementation of the booking widget with improved UI/UX
  */
 
 // Global state
@@ -57,9 +57,6 @@ const MBBooking = {
         // Initialize the UI
         this.initUI();
         
-        // Apply CSS styles
-        this.applyStyles();
-        
         // Load session types (services)
         this.loadSessionTypes();
     },
@@ -72,7 +69,7 @@ const MBBooking = {
         this.contentContainer = this.container.querySelector('.mb-content');
         
         // Set up progress indicators
-        const stepIndicators = this.container.querySelectorAll('.mb-step-indicator');
+        const stepIndicators = this.container.querySelectorAll('.mb-step');
         stepIndicators.forEach((indicator, index) => {
             const step = index + 1;
             if (step < this.state.currentStep) {
@@ -85,211 +82,6 @@ const MBBooking = {
                 indicator.classList.remove('mb-step-active', 'mb-step-completed');
             }
         });
-    },
-    
-    /**
-     * Apply CSS classes to the widget
-     */
-    applyStyles: function() {
-        const css = `
-            /* Base styles for the widget */
-            .mb-booking-widget {
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-                max-width: 800px;
-                margin: 0 auto;
-                position: relative;
-            }
-            
-            /* Category styles */
-            .mb-category {
-                margin-bottom: 30px;
-            }
-            
-            .mb-category-title {
-                font-size: 1.5em;
-                margin-bottom: 15px;
-                padding-bottom: 8px;
-                border-bottom: 1px solid #e0e0e0;
-            }
-            
-            /* Service styles */
-            .mb-service {
-                transition: all 0.2s ease;
-                border: 1px solid #e0e0e0;
-                border-radius: 4px;
-                margin-bottom: 15px;
-                background-color: #fff;
-            }
-            
-            .mb-service:hover {
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            }
-            
-            .mb-service-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 15px;
-                border-bottom: 1px solid #f0f0f0;
-            }
-            
-            .mb-service-info {
-                flex: 1;
-            }
-            
-            .mb-service-name {
-                font-weight: bold;
-                margin-bottom: 5px;
-            }
-            
-            .mb-service-price {
-                color: #333;
-                margin-bottom: 2px;
-            }
-            
-            .mb-service-duration {
-                color: #666;
-                font-size: 0.9em;
-            }
-            
-            .mb-service-description,
-            .mb-service-no-description {
-                padding: 10px 15px;
-                color: #666;
-                font-size: 0.9em;
-            }
-            
-            .mb-service-select {
-                padding: 8px 16px;
-                background-color: #f8f9fa;
-                border: 1px solid #ced4da;
-                border-radius: 4px;
-                cursor: pointer;
-                font-weight: 500;
-                transition: all 0.2s ease;
-            }
-            
-            .mb-service-select:hover {
-                background-color: #e9ecef;
-            }
-            
-            .mb-service-select.mb-selected {
-                background-color: #28a745;
-                border-color: #28a745;
-                color: white;
-            }
-            
-            /* Staff selection styles */
-            .mb-staff-selection {
-                margin-top: 20px;
-            }
-            
-            .mb-selected-service-info {
-                background-color: #f8f9fa;
-                border: 1px solid #e0e0e0;
-                border-radius: 4px;
-                padding: 15px;
-                margin-bottom: 20px;
-            }
-            
-            .mb-staff-list {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 15px;
-                margin-top: 20px;
-            }
-            
-            .mb-staff-item {
-                border: 1px solid #e0e0e0;
-                border-radius: 4px;
-                padding: 15px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                background-color: #fff;
-            }
-            
-            .mb-staff-name {
-                font-weight: 500;
-            }
-            
-            .mb-staff-select {
-                padding: 6px 12px;
-                background-color: #f8f9fa;
-                border: 1px solid #ced4da;
-                border-radius: 4px;
-                cursor: pointer;
-            }
-            
-            .mb-back-button {
-                padding: 8px 16px;
-                background-color: #f8f9fa;
-                border: 1px solid #ced4da;
-                border-radius: 4px;
-                cursor: pointer;
-                margin-bottom: 20px;
-            }
-            
-            /* Message styles */
-            .mb-message {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                max-width: 400px;
-                z-index: 9999;
-                animation: mb-slide-in 0.3s ease;
-            }
-            
-            .mb-message-content {
-                padding: 15px 20px;
-                border-radius: 4px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            
-            .mb-message-info .mb-message-content {
-                background-color: #cce5ff;
-                border: 1px solid #b8daff;
-                color: #004085;
-            }
-            
-            .mb-message-error .mb-message-content {
-                background-color: #f8d7da;
-                border: 1px solid #f5c6cb;
-                color: #721c24;
-            }
-            
-            .mb-message-success .mb-message-content {
-                background-color: #d4edda;
-                border: 1px solid #c3e6cb;
-                color: #155724;
-            }
-            
-            .mb-message-close {
-                background: none;
-                border: none;
-                font-size: 1.5em;
-                cursor: pointer;
-                margin-left: 10px;
-                padding: 0;
-                line-height: 1;
-            }
-            
-            @keyframes mb-slide-in {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-        `;
-        
-        this.addStyles(css);
     },
     
     /**
@@ -311,9 +103,11 @@ const MBBooking = {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    console.log('✅ Received session types:', data.data);
                     this.state.sessionTypes = data.data;
                     this.loadBookableItems();
                 } else {
+                    console.error('❌ Failed to load session types:', data);
                     this.showError('Failed to load services', data.data?.message);
                 }
             })
@@ -383,71 +177,84 @@ const MBBooking = {
      * @param {Array} items Bookable items data
      */
     processBookableItems: function(items) {
-        console.log('📊 Raw bookable items received count:', items.length);
-        
-        // Performance optimization: Only log first 20 items to prevent browser console overload
-        const sampleItems = items.slice(0, 20);
-        console.log('📊 Sample of bookable items (first 20):', sampleItems);
-
+        console.log('📊 Processing bookable items:', items);
         const services = {};
-        let skippedCount = 0;
 
-        items.forEach(item => {
-            if (!item.SessionType || !item.SessionType.Id) {
-                skippedCount++;
-                return; // Skip items that don't have a valid session type
-            }
-
-            const serviceId = item.SessionType.Id;
-            const serviceName = item.SessionType.Name || 'Unknown Service';
-            // First try OnlineDescription, then Description, then fall back to default message
-            const serviceDescription = item.SessionType.OnlineDescription || item.SessionType.Description || 'No description available';
-            // Use DefaultTimeLength for duration if available
-            const serviceDuration = item.SessionType.DefaultTimeLength || item.SessionType.Duration || 0;
-            const servicePrice = item.Price?.Amount ?? 0; // Ensure price fallback
-
-            // Create service entry if it doesn't exist
-            if (!services[serviceId]) {
-                services[serviceId] = {
-                    id: serviceId,
-                    name: serviceName,
-                    description: serviceDescription,
-                    price: servicePrice,
-                    duration: serviceDuration,
-                    availableTimes: [],
-                    staff: {}
-                };
-            }
-
-            // Ensure StartDateTime exists before pushing
-            if (item.StartDateTime) {
-                services[serviceId].availableTimes.push(item.StartDateTime);
-            }
-
-            // Add staff member if provided
-            if (item.Staff && item.Staff.Id) {
-                const staffId = item.Staff.Id;
-                const staffName = item.Staff.Name || 'Unknown Staff';
-
-                if (!services[serviceId].staff[staffId]) {
-                    services[serviceId].staff[staffId] = {
-                        id: staffId,
-                        name: staffName
+        // Also look for session types in the data
+        if (this.state.sessionTypes && this.state.sessionTypes.length > 0) {
+            // First populate services from session types to ensure we have all services
+            this.state.sessionTypes.forEach(sessionType => {
+                const serviceId = sessionType.Id;
+                
+                if (!services[serviceId]) {
+                    services[serviceId] = {
+                        id: serviceId,
+                        name: sessionType.Name,
+                        description: sessionType.Description || 'No description available',
+                        price: sessionType.Price || 0,
+                        duration: sessionType.Duration || 60,
+                        availableTimes: [],
+                        staff: {}
                     };
+                    console.log('✅ Added service from session types:', services[serviceId]);
                 }
-            }
-        });
+            });
+        }
+
+        // Process bookable items (availabilities)
+        if (items && items.length > 0) {
+            items.forEach(item => {
+                if (!item.SessionType || !item.SessionType.Id) {
+                    console.warn('⚠️ Skipping invalid item:', item);
+                    return;
+                }
+
+                const serviceId = item.SessionType.Id;
+                
+                // If service doesn't exist yet, create it
+                if (!services[serviceId]) {
+                    services[serviceId] = {
+                        id: serviceId,
+                        name: item.SessionType.Name || 'Unknown Service',
+                        description: item.SessionType.Description || 'No description available',
+                        price: item.Price?.Amount || 65,
+                        duration: item.SessionType.Duration || 60,
+                        availableTimes: [],
+                        staff: {}
+                    };
+                    console.log('✅ Added new service from bookable item:', services[serviceId]);
+                }
+
+                // Ensure price is set (use item price if available)
+                if (item.Price?.Amount && item.Price.Amount > 0) {
+                    services[serviceId].price = item.Price.Amount;
+                }
+
+                // Add StartDateTime to availableTimes if present
+                if (item.StartDateTime) {
+                    services[serviceId].availableTimes.push(item.StartDateTime);
+                }
+
+                // Add staff member if provided
+                if (item.Staff && item.Staff.Id) {
+                    const staffId = item.Staff.Id;
+                    const staffName = item.Staff.Name || 'Unknown Staff';
+
+                    if (!services[serviceId].staff[staffId]) {
+                        services[serviceId].staff[staffId] = {
+                            id: staffId,
+                            name: staffName
+                        };
+                    }
+                }
+            });
+        }
 
         // Store processed services
         this.state.services = services;
-
-        console.log('📊 Processed services count:', Object.keys(services).length);
-        console.log('⚠️ Skipped invalid items count:', skippedCount);
+        console.log('📊 Processed services:', services);
         
-        // Log services for debugging
-        console.log('📊 Full services object:', services);
-        
-        // Check for items in the cart
+        // Restore cart state if needed
         if (this.state.cart?.items?.length > 0) {
             const firstItem = this.state.cart.items[0];
 
@@ -471,151 +278,126 @@ const MBBooking = {
      * Show service selection view
      */
     showServiceSelection: function() {
-        console.log('🧠 Showing service selection');
+        // Get service selection template
+        const template = document.getElementById('mb-service-selection-template');
+        if (!template) {
+            console.error('Service selection template not found');
+            return;
+        }
         
-        // Clear selected service, staff, date, and time
-        this.state.selectedService = null;
-        this.state.selectedStaff = null;
-        this.state.selectedDate = null;
-        this.state.selectedTime = null;
+        // Clone template content
+        const content = template.content.cloneNode(true);
         
-        // Group services by category
-        const categories = this.groupServicesByCategory();
+        // Clear content container and add new content
+        this.contentContainer.innerHTML = '';
+        this.contentContainer.appendChild(content);
         
-        // Create service selection container
-        const container = document.createElement('div');
-        container.className = 'mb-service-selection';
+        // Update progress step
+        this.updateProgressStep(1);
         
-        // Add title
-        const title = document.createElement('h2');
-        title.textContent = 'Select Service';
-        container.appendChild(title);
+        // Get service categories
+        const categories = this.getServiceCategories();
         
-        // Add categories
-        Object.keys(categories).sort().forEach(categoryName => {
-            const category = document.createElement('div');
-            category.className = 'mb-category';
+        // Check if we have services
+        if (Object.keys(categories).length === 0) {
+            this.showNoServices();
+            return;
+        }
+        
+        // Populate category filter if enabled
+        if (this.settings.showFilters) {
+            const filterContainer = this.contentContainer.querySelector('.mb-filters');
+            filterContainer.dataset.showFilters = 'true';
+            filterContainer.classList.remove('mb-hidden');
             
-            const categoryTitle = document.createElement('h3');
-            categoryTitle.className = 'mb-category-title';
-            categoryTitle.textContent = categoryName;
-            category.appendChild(categoryTitle);
-            
-            // Add services
-            categories[categoryName].forEach(service => {
-                const serviceElement = document.createElement('div');
-                serviceElement.className = 'mb-service';
-                
-                const serviceHeader = document.createElement('div');
-                serviceHeader.className = 'mb-service-header';
-                
-                const serviceInfo = document.createElement('div');
-                serviceInfo.className = 'mb-service-info';
-                
-                const serviceName = document.createElement('div');
-                serviceName.className = 'mb-service-name';
-                serviceName.textContent = service.name;
-                serviceInfo.appendChild(serviceName);
-                
-                const servicePrice = document.createElement('div');
-                servicePrice.className = 'mb-service-price';
-                servicePrice.textContent = `$${service.price.toFixed(2)}`;
-                serviceInfo.appendChild(servicePrice);
-                
-                // Add duration with min label if available
-                if (service.duration) {
-                    const serviceDuration = document.createElement('div');
-                    serviceDuration.className = 'mb-service-duration';
-                    serviceDuration.textContent = `${service.duration} min`;
-                    serviceInfo.appendChild(serviceDuration);
-                }
-                
-                serviceHeader.appendChild(serviceInfo);
-                
-                const selectButton = document.createElement('button');
-                selectButton.className = 'mb-service-select';
-                selectButton.textContent = 'Select';
-                selectButton.dataset.serviceId = service.id;
-                selectButton.addEventListener('click', () => {
-                    this.selectService(service.id);
-                });
-                serviceHeader.appendChild(selectButton);
-                
-                serviceElement.appendChild(serviceHeader);
-                
-                // Add description if available
-                if (service.description && service.description !== 'No description available') {
-                    const serviceDescription = document.createElement('div');
-                    serviceDescription.className = 'mb-service-description';
-                    serviceDescription.textContent = service.description;
-                    serviceElement.appendChild(serviceDescription);
-                } else {
-                    const serviceNoDescription = document.createElement('div');
-                    serviceNoDescription.className = 'mb-service-no-description';
-                    serviceNoDescription.textContent = 'No description available';
-                    serviceElement.appendChild(serviceNoDescription);
-                }
-                
-                category.appendChild(serviceElement);
+            const categoryFilter = filterContainer.querySelector('#mb-category-filter');
+            Object.keys(categories).forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilter.appendChild(option);
             });
             
-            container.appendChild(category);
-        });
-        
-        // Replace content
-        this.clearContent();
-        this.getContentElement().appendChild(container);
-    },
-    
-    /**
-     * Group services by category
-     * 
-     * @returns {Object} Services grouped by category
-     */
-    groupServicesByCategory: function() {
-        const services = this.state.services;
-        const categories = {};
-        
-        // Define common categories
-        const commonCategories = {
-            'Consultation': ['consult', 'consultation', 'initial', 'assessment'],
-            'Training': ['training', 'session', 'personal', 'workout', '1on1', '2on1', '3on1'],
-            'Other': []
-        };
-        
-        // Group services
-        Object.values(services).forEach(service => {
-            // Determine category
-            let category = 'Other';
-            
-            const serviceName = service.name.toLowerCase();
-            
-            for (const [categoryName, keywords] of Object.entries(commonCategories)) {
-                if (keywords.some(keyword => serviceName.includes(keyword))) {
-                    category = categoryName;
-                    break;
-                }
-            }
-            
-            // Create category if it doesn't exist
-            if (!categories[category]) {
-                categories[category] = [];
-            }
-            
-            // Add service to category
-            categories[category].push(service);
-        });
-        
-        // Sort services within each category by name
-        for (const category in categories) {
-            categories[category].sort((a, b) => {
-                return a.name.localeCompare(b.name);
+            // Set up event listener for category filter
+            categoryFilter.addEventListener('change', () => {
+                this.filterServicesByCategory(categoryFilter.value);
             });
         }
         
-        return categories;
-    },
+        // Populate service categories
+        const categoriesContainer = this.contentContainer.querySelector('.mb-categories');
+        const categoryTemplate = document.getElementById('mb-category-template');
+        const serviceTemplate = document.getElementById('mb-service-template');
+        const staffTemplate = document.getElementById('mb-staff-option-template');
+        
+        Object.keys(categories).forEach(category => {
+            // Skip empty categories
+            if (categories[category].length === 0) {
+                return;
+            }
+            
+            // Clone category template
+            const categoryEl = categoryTemplate.content.cloneNode(true);
+            const categoryTitle = categoryEl.querySelector('.mb-category-title');
+            categoryTitle.textContent = category;
+            
+            // Get services container
+            const servicesContainer = categoryEl.querySelector('.mb-services');
+            
+            // Add services to category
+            categories[category].forEach(serviceId => {
+                const service = this.state.services[serviceId];
+                if (!service) return;
+                
+                // Clone service template
+                const serviceEl = serviceTemplate.content.cloneNode(true);
+                
+                // Set service information
+                serviceEl.querySelector('.mb-service').dataset.serviceId = service.id;
+                serviceEl.querySelector('.mb-service-name').textContent = service.name;
+                serviceEl.querySelector('.mb-service-price').textContent = this.formatPrice(service.price);
+                serviceEl.querySelector('.mb-service-duration').textContent = this.formatDuration(service.duration);
+                
+                // Show description if available
+                if (service.description) {
+                    const descriptionEl = serviceEl.querySelector('.mb-service-description');
+                    descriptionEl.textContent = service.description;
+                    descriptionEl.classList.remove('mb-hidden');
+                }
+                
+                // Add staff members if available
+                const staffContainer = serviceEl.querySelector('.mb-staff-options');
+                const hasStaff = service.staff && Object.keys(service.staff).length > 0;
+                
+                if (hasStaff) {
+                    // Add staff members
+                    Object.values(service.staff).forEach(staff => {
+                        const staffEl = staffTemplate.content.cloneNode(true);
+                        staffEl.querySelector('.mb-staff-option').dataset.staffId = staff.id;
+                        staffEl.querySelector('.mb-staff-name').textContent = staff.name;
+                        staffContainer.appendChild(staffEl);
+                    });
+                } else {
+                    // Hide Any Staff option if no staff available
+                    serviceEl.querySelector('.mb-any-staff').classList.add('mb-hidden');
+                }
+                
+                // Add service to container
+                servicesContainer.appendChild(serviceEl);
+            });
+            
+            // Add category to container
+            categoriesContainer.appendChild(categoryEl);
+        });
+        
+        // Add event listeners for service selection
+        this.setupServiceSelectionEvents();
 
+        setTimeout(() => {
+            console.log('📊 Services rendered:', document.querySelectorAll('.mb-service').length);
+        }, 500);
+    },
+    
     /**
      * Set up event listeners for service selection
      */
@@ -718,45 +500,17 @@ const MBBooking = {
     /**
      * Select a service
      * 
-     * @param {string} serviceId Service ID
+     * @param {Object} service Service object
      */
-    selectService: function(serviceId) {
-        console.log('🔘 Service selected:', serviceId);
+    selectService: function(service) {
+        // Deselect any previously selected service
+        this.deselectService();
         
-        // Get the service
-        const service = this.state.services[serviceId];
-        
-        if (!service) {
-            console.error('Service not found:', serviceId);
-            return;
-        }
-        
-        // Store selected service in state
+        // Select new service
         this.state.selectedService = service;
         
-        // Reset selected staff, date, and time
-        this.state.selectedStaff = null;
-        this.state.selectedDate = null;
-        this.state.selectedTime = null;
-        
-        // Update UI to show service is selected
-        const allButtons = document.querySelectorAll('.mb-service-select');
-        allButtons.forEach(button => {
-            button.textContent = 'Select';
-            button.classList.remove('mb-selected');
-        });
-        
-        const selectedButton = document.querySelector(`.mb-service-select[data-service-id="${serviceId}"]`);
-        if (selectedButton) {
-            selectedButton.textContent = 'Selected';
-            selectedButton.classList.add('mb-selected');
-        }
-        
-        // Log selection for debugging
-        console.log('📊 Selected service:', service);
-        
-        // Progress to staff selection step
-        this.showStaffSelection();
+        // Save state
+        this.saveState();
     },
     
     /**
@@ -775,171 +529,15 @@ const MBBooking = {
     /**
      * Select staff member
      * 
-     * @param {string} staffId Staff ID
+     * @param {Object|null} staff Staff object or null for any staff
      */
-    selectStaff: function(staffId) {
-        console.log('🔘 Staff selected:', staffId);
-        
-        // If staffId is null or undefined, it's "Any Staff"
-        if (!staffId) {
-            this.state.selectedStaff = null;
-            console.log('Selected: Any Available Staff');
-        } else {
-            // Get staff member from the selected service
-            const staffMember = this.state.selectedService.staff[staffId];
-            
-            if (!staffMember) {
-                console.error('Staff member not found:', staffId);
-                return;
-            }
-            
-            this.state.selectedStaff = staffMember;
-            console.log('Selected staff member:', staffMember.name);
-        }
+    selectStaff: function(staff) {
+        this.state.selectedStaff = staff;
         
         // Save state
         this.saveState();
-        
-        // Proceed to date selection
-        this.loadAvailableDates();
     },
     
-    /**
-     * Show staff selection step
-     */
-    showStaffSelection: function() {
-        console.log('👥 Showing staff selection');
-        
-        if (!this.state.selectedService) {
-            console.error('No service selected');
-            return;
-        }
-        
-        // Get available staff for selected service
-        const staff = this.state.selectedService.staff;
-        
-        if (!staff || Object.keys(staff).length === 0) {
-            console.warn('No staff available for this service');
-            // Display error message
-            this.showMessage('No staff members are available for this service. Please select another service or try again later.');
-            return;
-        }
-        
-        // Create staff selection container
-        const container = document.createElement('div');
-        container.className = 'mb-staff-selection';
-        
-        // Add title
-        const title = document.createElement('h2');
-        title.textContent = 'Select Staff';
-        container.appendChild(title);
-        
-        // Add service info
-        const serviceInfo = document.createElement('div');
-        serviceInfo.className = 'mb-selected-service-info';
-        serviceInfo.innerHTML = `
-            <p><strong>${this.state.selectedService.name}</strong></p>
-            <p>${this.state.selectedService.duration} min | $${this.state.selectedService.price.toFixed(2)}</p>
-        `;
-        container.appendChild(serviceInfo);
-        
-        // Add back button
-        const backButton = document.createElement('button');
-        backButton.className = 'mb-back-button';
-        backButton.textContent = 'Back to Services';
-        backButton.addEventListener('click', () => {
-            this.showServiceSelection();
-        });
-        container.appendChild(backButton);
-        
-        // Add staff list
-        const staffList = document.createElement('div');
-        staffList.className = 'mb-staff-list';
-        
-        // Add staff items
-        Object.values(staff).forEach(staffMember => {
-            const staffItem = document.createElement('div');
-            staffItem.className = 'mb-staff-item';
-            
-            const staffName = document.createElement('div');
-            staffName.className = 'mb-staff-name';
-            staffName.textContent = staffMember.name;
-            staffItem.appendChild(staffName);
-            
-            const selectButton = document.createElement('button');
-            selectButton.className = 'mb-staff-select';
-            selectButton.textContent = 'Select';
-            selectButton.dataset.staffId = staffMember.id;
-            selectButton.addEventListener('click', () => {
-                this.selectStaff(staffMember.id);
-            });
-            staffItem.appendChild(selectButton);
-            
-            staffList.appendChild(staffItem);
-        });
-        
-        container.appendChild(staffList);
-        
-        // Replace content
-        this.clearContent();
-        this.getContentElement().appendChild(container);
-    },
-
-    /**
-     * Show message to user
-     * 
-     * @param {string} message Message text
-     * @param {string} type Message type (info, error, success)
-     * @param {number} duration Duration in ms (0 for persistent)
-     */
-    showMessage: function(message, type = 'info', duration = 3000) {
-        console.log(`📣 Showing message: ${message} (${type})`);
-        
-        // Remove any existing messages
-        const existingMessages = document.querySelectorAll('.mb-message');
-        existingMessages.forEach(msg => msg.remove());
-        
-        // Create message element
-        const messageElement = document.createElement('div');
-        messageElement.className = `mb-message mb-message-${type}`;
-        messageElement.innerHTML = `
-            <div class="mb-message-content">
-                <p>${message}</p>
-                ${duration !== 0 ? '<button class="mb-message-close">×</button>' : ''}
-            </div>
-        `;
-        
-        // Add to DOM
-        document.querySelector('.mb-booking-widget').appendChild(messageElement);
-        
-        // Add close button handler
-        const closeButton = messageElement.querySelector('.mb-message-close');
-        if (closeButton) {
-            closeButton.addEventListener('click', () => {
-                messageElement.remove();
-            });
-        }
-        
-        // Auto-close if duration is set
-        if (duration > 0) {
-            setTimeout(() => {
-                if (messageElement.parentNode) {
-                    messageElement.remove();
-                }
-            }, duration);
-        }
-        
-        return messageElement;
-    },
-
-    /**
-     * Clear all messages
-     */
-    clearMessages: function() {
-        const messages = document.querySelectorAll('.mb-message');
-        messages.forEach(message => message.remove());
-    },
-
     /**
      * Load available dates for selected service and staff
      */
@@ -1253,7 +851,7 @@ const MBBooking = {
         timeSlotsContainer.classList.remove('mb-hidden');
         
         const timeSlotsElement = timeSlotsContainer.querySelector('.mb-time-slots');
-        timeSlotsElement.innerHTML = '<div class="mb-loading"><div class="mb-spinner"></div></div>';
+        timeSlotsElement.innerHTML = '<div class="mb-loading"><div class="mb-spinner"></div><div class="mb-loading-text">Loading available time slots...</div></div>';
         
         // Update selected date display
         const selectedDateElement = timeSlotsContainer.querySelector('.mb-selected-date');
@@ -2319,65 +1917,20 @@ const MBBooking = {
         this.state.currentStep = step;
         
         // Update step indicators
-        const stepIndicators = this.container.querySelectorAll('.mb-step-indicator');
+        const stepIndicators = this.container.querySelectorAll('.mb-step');
         stepIndicators.forEach((indicator, index) => {
             const indicatorStep = index + 1;
-            indicator.classList.remove('mb-step-active', 'mb-step-completed');
             
             if (indicatorStep < step) {
                 indicator.classList.add('mb-step-completed');
+                indicator.classList.remove('mb-step-active');
             } else if (indicatorStep === step) {
                 indicator.classList.add('mb-step-active');
+                indicator.classList.remove('mb-step-completed');
+            } else {
+                indicator.classList.remove('mb-step-active', 'mb-step-completed');
             }
         });
-    },
-    
-    /**
-     * Show loading indicator
-     * 
-     * @param {string} message Loading message
-     */
-    showLoading: function(message) {
-        this.contentContainer.innerHTML = `
-            <div class="mb-loading">
-                <div class="mb-spinner"></div>
-                <div class="mb-loading-text">${message || 'Loading...'}</div>
-            </div>
-        `;
-    },
-    
-    /**
-     * Show error message
-     * 
-     * @param {string} title Error title
-     * @param {string} message Error message
-     */
-    showError: function(title, message) {
-        this.contentContainer.innerHTML = `
-            <div class="mb-error">
-                <div class="mb-error-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48"><path fill="none" d="M0 0h24v24H0z"/><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-7v2h2v-2h-2zm0-8v6h2V7h-2z"/></svg>
-                </div>
-                <h3 class="mb-error-title">${title}</h3>
-                ${message ? `<p class="mb-error-message">${message}</p>` : ''}
-                <button class="mb-btn mb-primary-btn mb-retry-btn" onclick="MBBooking.init()">Try Again</button>
-            </div>
-        `;
-    },
-    
-    /**
-     * Show "no services available" message
-     */
-    showNoServices: function() {
-        // Get template
-        const template = document.getElementById('mb-no-services-template');
-        
-        // Clear categories container
-        const categoriesContainer = this.contentContainer.querySelector('.mb-categories');
-        categoriesContainer.innerHTML = '';
-        
-        // Clone and add template
-        categoriesContainer.appendChild(template.content.cloneNode(true));
     },
     
     /**
@@ -2448,6 +2001,54 @@ const MBBooking = {
                 }
             });
         }
+    },
+    
+    /**
+     * Show loading indicator
+     * 
+     * @param {string} message Loading message
+     */
+    showLoading: function(message) {
+        this.contentContainer.innerHTML = `
+            <div class="mb-loading">
+                <div class="mb-spinner"></div>
+                <div class="mb-loading-text">${message || 'Loading...'}</div>
+            </div>
+        `;
+    },
+    
+    /**
+     * Show error message
+     * 
+     * @param {string} title Error title
+     * @param {string} message Error message
+     */
+    showError: function(title, message) {
+        this.contentContainer.innerHTML = `
+            <div class="mb-error">
+                <div class="mb-error-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48"><path fill="none" d="M0 0h24v24H0z"/><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-7v2h2v-2h-2zm0-8v6h2V7h-2z"/></svg>
+                </div>
+                <h3 class="mb-error-title">${title}</h3>
+                ${message ? `<p class="mb-error-message">${message}</p>` : ''}
+                <button class="mb-btn mb-primary-btn mb-retry-btn" onclick="MBBooking.init()">Try Again</button>
+            </div>
+        `;
+    },
+    
+    /**
+     * Show "no services available" message
+     */
+    showNoServices: function() {
+        // Get template
+        const template = document.getElementById('mb-no-services-template');
+        
+        // Clear categories container
+        const categoriesContainer = this.contentContainer.querySelector('.mb-categories');
+        categoriesContainer.innerHTML = '';
+        
+        // Clone and add template
+        categoriesContainer.appendChild(template.content.cloneNode(true));
     },
     
     /**
@@ -2577,50 +2178,6 @@ const MBBooking = {
         }
         
         return null;
-    },
-    
-    /**
-     * Clear content container
-     */
-    clearContent: function() {
-        if (this.contentContainer) {
-            this.contentContainer.innerHTML = '';
-        }
-    },
-    
-    /**
-     * Get content element
-     * 
-     * @returns {HTMLElement} Content container element
-     */
-    getContentElement: function() {
-        return this.contentContainer;
-    },
-    
-    /**
-     * Add styles to the page
-     * 
-     * @param {string} cssText CSS text to add
-     */
-    addStyles: function(cssText) {
-        // Check if style element exists
-        let styleElement = document.getElementById('mb-dynamic-styles');
-        
-        if (!styleElement) {
-            // Create style element
-            styleElement = document.createElement('style');
-            styleElement.id = 'mb-dynamic-styles';
-            document.head.appendChild(styleElement);
-        }
-        
-        // Add CSS text
-        if (styleElement.styleSheet) {
-            // IE
-            styleElement.styleSheet.cssText += cssText;
-        } else {
-            // Other browsers
-            styleElement.textContent += cssText;
-        }
     }
 };
 

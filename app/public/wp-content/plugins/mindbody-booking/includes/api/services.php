@@ -1,8 +1,8 @@
 <?php
 /**
- * Services API Handler
+ * Services API Handler - Enhanced Version
  * 
- * Handles fetching service/session type data from Mindbody
+ * Properly handles fetching service/session type data from Mindbody
  */
 
 // Exit if accessed directly
@@ -16,9 +16,10 @@ class MB_API_Services {
      * 
      * @param boolean $online_only Whether to only return services bookable online
      * @param array $program_ids Optional array of program IDs to filter by
+     * @param boolean $include_pricing Whether to include default pricing 
      * @return array|WP_Error Array of services or WP_Error
      */
-    public function get_session_types($online_only = true, $program_ids = array()) {
+    public function get_session_types($online_only = true, $program_ids = array(), $include_pricing = true) {
         // Build query parameters
         $params = array();
         
@@ -38,29 +39,25 @@ class MB_API_Services {
         
         // Check for API error
         if (is_wp_error($response)) {
+            error_log('Error fetching session types: ' . $response->get_error_message());
             return $response;
         }
         
         // Check if session types exist in response
         if (!isset($response['SessionTypes']) || !is_array($response['SessionTypes'])) {
+            error_log('Invalid response from API: SessionTypes not found');
             return new WP_Error('invalid_response', 'Invalid response from API: SessionTypes not found');
         }
         
-        // ADD THIS FILTER: Filter session types to include only Appointment types
-        $filtered_session_types = array();
-        foreach ($response['SessionTypes'] as $session_type) {
-            if (isset($session_type['Type']) && $session_type['Type'] === 'Appointment') {
-                $filtered_session_types[] = $session_type;
-            } else {
-                error_log("⚠️ Skipping session type: " . print_r($session_type, true));
-            }
+        // Log the session types for debugging
+        error_log('Fetched ' . count($response['SessionTypes']) . ' session types from API');
+        
+        // Process session types to ensure they have prices and descriptions
+        if ($include_pricing) {
+            $session_types = $this->process_session_types_pricing($response['SessionTypes']);
+        } else {
+            $session_types = $response['SessionTypes'];
         }
-        
-        // Replace original array with filtered array
-        $response['SessionTypes'] = $filtered_session_types;
-        
-        // Process session types to ensure they have prices
-        $session_types = $this->process_session_types_pricing($response['SessionTypes']);
         
         return $session_types;
     }
@@ -88,107 +85,124 @@ class MB_API_Services {
         $start_date_formatted = $start_date . 'T00:00:00Z';
         $end_date_formatted = $end_date . 'T23:59:59Z';
         
-        // Initialize combined availabilities array
-        $all_availabilities = array();
+        // Build query parameters
+        $params = array(
+            'request.startDate' => $start_date_formatted,
+            'request.endDate' => $end_date_formatted,
+            'request.locationId' => -99 // Default location ID
+        );
         
-        // Process session types in smaller batches to avoid exceeding API limits
-        $batches = array_chunk($session_type_ids, 5);
+        // Add session type IDs
+        foreach ($session_type_ids as $index => $id) {
+            $params["request.sessionTypeIds[$index]"] = $id;
+        }
         
-        foreach ($batches as $batch) {
-            // Build base query parameters
-            $params = array(
-                'request.startDate' => $start_date_formatted,
-                'request.endDate' => $end_date_formatted,
-                'request.limit' => 200 // Increase limit from default 100
-            );
+        // Add staff IDs if provided
+        if (!empty($staff_ids)) {
+            foreach ($staff_ids as $index => $id) {
+                $params["request.staffIds[$index]"] = $id;
+            }
+        }
+        
+        // Add location IDs if provided
+        if (!empty($location_ids)) {
+            // Remove default location ID
+            unset($params['request.locationId']);
             
-            // Add location ID if provided, otherwise use default
-            if (!empty($location_ids)) {
-                foreach ($location_ids as $index => $id) {
-                    $params["request.locationIds[$index]"] = $id;
+            // Add specified location IDs
+            foreach ($location_ids as $index => $id) {
+                $params["request.locationIds[$index]"] = $id;
+            }
+        }
+        
+        // Make API request
+        $response = MB_API_Client::get('/appointment/bookableitems', $params);
+        
+        // Check for API error
+        if (is_wp_error($response)) {
+            error_log('Error getting bookable items: ' . $response->get_error_message());
+            return $response;
+        }
+        
+        // Check if availabilities exist in response
+        if (!isset($response['Availabilities']) || !is_array($response['Availabilities']) || empty($response['Availabilities'])) {
+            error_log('No availabilities found in bookable items response. Creating synthetic entries...');
+            
+            // If no availabilities, create synthetic entries from session types
+            $session_types = $this->get_session_types(true, array(), true);
+            
+            $availabilities = array();
+            
+            // Convert session types to availabilities
+            if (!is_wp_error($session_types)) {
+                foreach ($session_types as $session_type) {
+                    // Create a synthetic availability entry
+                    $availabilities[] = array(
+                        'SessionType' => $session_type,
+                        'Staff' => null, // No staff assigned
+                        'Price' => isset($session_type['Price']) ? array('Amount' => $session_type['Price']) : null
+                    );
                 }
-            } else {
-                $params['request.locationId'] = -99; // Default location ID
+                
+                error_log('Created ' . count($availabilities) . ' synthetic availabilities');
             }
             
-            // Add session type IDs for this batch
-            foreach ($batch as $index => $id) {
-                $params["request.sessionTypeIds[$index]"] = $id;
-            }
-            
-            // Add staff IDs if provided
-            if (!empty($staff_ids)) {
-                foreach ($staff_ids as $index => $id) {
-                    $params["request.staffIds[$index]"] = $id;
-                }
-            }
-            
-            // Initialize offset for pagination
-            $offset = 0;
-            $has_more = true;
-            
-            // Fetch all pages of results
-            while ($has_more) {
-                // Add offset parameter for pagination
-                $params['request.offset'] = $offset;
-                
-                // Make API request
-                $response = MB_API_Client::get('/appointment/bookableitems', $params);
-                
-                // Check for API error
-                if (is_wp_error($response)) {
-                    error_log('Error fetching bookable items: ' . $response->get_error_message());
-                    // Continue with next batch instead of returning error
-                    break;
-                }
-                
-                // Process availabilities
-                if (isset($response['Availabilities']) && is_array($response['Availabilities'])) {
-                    $availabilities = $response['Availabilities'];
-                    $count = count($availabilities);
-                    
-                    // Add to combined results
-                    $all_availabilities = array_merge($all_availabilities, $availabilities);
-                    
-                    // Log results for debugging
-                    error_log("Fetched $count availabilities for batch with offset $offset");
-                    
-                    // Check if we need another page (if we got the full limit amount)
-                    if ($count >= 200) {
-                        $offset += 200;
-                    } else {
-                        $has_more = false;
-                    }
-                } else {
-                    // No more availabilities
-                    $has_more = false;
+            return $availabilities;
+        }
+        
+        // Enhance availabilities with full session type data
+        $enhanced_availabilities = $this->enhance_availabilities($response['Availabilities']);
+        
+        return $enhanced_availabilities;
+    }
+    
+    /**
+     * Enhance availabilities with complete session type info
+     * 
+     * @param array $availabilities Availabilities from API
+     * @return array Enhanced availabilities
+     */
+    private function enhance_availabilities($availabilities) {
+        // Get all session types
+        $session_types = $this->get_session_types(true, array(), true);
+        
+        // Create a map of session type by ID
+        $session_type_map = array();
+        if (!is_wp_error($session_types)) {
+            foreach ($session_types as $session_type) {
+                if (isset($session_type['Id'])) {
+                    $session_type_map[$session_type['Id']] = $session_type;
                 }
             }
         }
         
-        // If no availabilities found, create synthetic entries from session types
-        if (empty($all_availabilities)) {
-            // Get session types to create synthetic entries
-            $services_api = new MB_API_Services();
-            $session_types = $services_api->get_session_types(true);
-            
-            if (!is_wp_error($session_types)) {
-                foreach ($session_types as $session_type) {
-                    if ($session_type['Type'] === 'Appointment') {
-                        // Create a synthetic availability entry
-                        $all_availabilities[] = array(
-                            'SessionType' => $session_type,
-                            'Staff' => null // No staff assigned
+        // Enhance each availability with full session type info
+        foreach ($availabilities as &$availability) {
+            if (isset($availability['SessionType']) && isset($availability['SessionType']['Id'])) {
+                $session_type_id = $availability['SessionType']['Id'];
+                
+                // Replace with full session type if available
+                if (isset($session_type_map[$session_type_id])) {
+                    // Preserve the original session type ID
+                    $original_id = $availability['SessionType']['Id'];
+                    
+                    // Replace with full session type
+                    $availability['SessionType'] = $session_type_map[$session_type_id];
+                    
+                    // Ensure ID is preserved
+                    $availability['SessionType']['Id'] = $original_id;
+                    
+                    // Set price if not already set
+                    if (!isset($availability['Price']) && isset($session_type_map[$session_type_id]['Price'])) {
+                        $availability['Price'] = array(
+                            'Amount' => $session_type_map[$session_type_id]['Price']
                         );
                     }
                 }
             }
         }
         
-        // Log the total number of availabilities found
-        error_log("Total availabilities found: " . count($all_availabilities));
-        
-        return $all_availabilities;
+        return $availabilities;
     }
     
     /**
@@ -232,12 +246,28 @@ class MB_API_Services {
         
         // Check for API error
         if (is_wp_error($response)) {
+            error_log('Error getting available dates: ' . $response->get_error_message());
             return $response;
         }
         
         // Check if available dates exist in response
         if (!isset($response['AvailableDates']) || !is_array($response['AvailableDates'])) {
+            error_log('Invalid response from API: AvailableDates not found');
             return new WP_Error('invalid_response', 'Invalid response from API: AvailableDates not found');
+        }
+        
+        // If no available dates are returned, generate some synthetic ones for testing
+        if (empty($response['AvailableDates']) && defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('No available dates found, generating synthetic dates for testing');
+            $synthetic_dates = array();
+            
+            // Generate dates for the next 14 days
+            for ($i = 0; $i < 14; $i++) {
+                $date = date('Y-m-d', strtotime("+$i days"));
+                $synthetic_dates[] = $date;
+            }
+            
+            return $synthetic_dates;
         }
         
         return $response['AvailableDates'];
@@ -277,11 +307,13 @@ class MB_API_Services {
         
         // Check for API error
         if (is_wp_error($response)) {
+            error_log('Error getting available times: ' . $response->get_error_message());
             return $response;
         }
         
         // Check if availabilities exist in response
         if (!isset($response['Availabilities']) || !is_array($response['Availabilities'])) {
+            error_log('No time slots found for date: ' . $date);
             return array(); // Return empty array instead of error for no availabilities
         }
         
@@ -295,6 +327,17 @@ class MB_API_Services {
             }
         }
         
+        // If no time slots are found, generate synthetic ones for testing
+        if (empty($time_slots) && defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('No time slots found, generating synthetic times for testing');
+            
+            // Generate times from 9 AM to 5 PM in 30-minute increments
+            for ($hour = 9; $hour < 17; $hour++) {
+                $time_slots[] = sprintf('%02d:00', $hour);
+                $time_slots[] = sprintf('%02d:30', $hour);
+            }
+        }
+        
         // Remove duplicates and sort
         $time_slots = array_unique($time_slots);
         sort($time_slots);
@@ -303,10 +346,10 @@ class MB_API_Services {
     }
     
     /**
-     * Process session types to ensure they have prices
+     * Process session types to ensure they have prices and descriptions
      * 
      * @param array $session_types Array of session types from API
-     * @return array Processed session types with prices
+     * @return array Processed session types with prices and descriptions
      */
     private function process_session_types_pricing($session_types) {
         // Default prices for different service types
@@ -325,24 +368,60 @@ class MB_API_Services {
             '120 min' => 120
         );
         
+        // Default descriptions for service types
+        $default_descriptions = array(
+            'Personal Training' => 'One-on-one personal training session tailored to your fitness goals and needs.',
+            'Training' => 'Personalized training session designed to help you reach your fitness goals.',
+            'Massage' => 'Therapeutic massage to help with recovery and relaxation.',
+            'Therapy' => 'Professional therapy session for recovery and rehabilitation.',
+            'Consultation' => 'Initial consultation to discuss your fitness goals and create a plan.',
+            'Nutrition' => 'Nutrition counseling to support your health and fitness objectives.'
+        );
+        
         // Process each session type
         foreach ($session_types as &$service) {
             // Skip if price is already set and valid
-            if (isset($service['Price']) && $service['Price'] > 0) {
-                continue;
-            }
-            
-            // Try to match service name with default prices
-            foreach ($default_prices as $keyword => $price) {
-                if (stripos($service['Name'], $keyword) !== false) {
-                    $service['Price'] = $price;
-                    break;
+            if (!isset($service['Price']) || $service['Price'] <= 0) {
+                // Try to match service name with default prices
+                foreach ($default_prices as $keyword => $price) {
+                    if (stripos($service['Name'], $keyword) !== false) {
+                        $service['Price'] = $price;
+                        break;
+                    }
+                }
+                
+                // Set default price if still not set
+                if (!isset($service['Price']) || $service['Price'] <= 0) {
+                    $service['Price'] = 65; // Default price
                 }
             }
             
-            // Set default price if still not set
-            if (!isset($service['Price']) || $service['Price'] <= 0) {
-                $service['Price'] = 65; // Default price
+            // Add or enhance description if missing or minimal
+            if (!isset($service['Description']) || empty($service['Description']) || strlen($service['Description']) < 20) {
+                $found_description = false;
+                
+                // Try to match service name with default descriptions
+                foreach ($default_descriptions as $keyword => $description) {
+                    if (stripos($service['Name'], $keyword) !== false) {
+                        $service['Description'] = $description;
+                        $found_description = true;
+                        break;
+                    }
+                }
+                
+                // Set generic description if still not set
+                if (!$found_description) {
+                    $duration = isset($service['Duration']) ? $service['Duration'] : 60;
+                    $duration_text = $duration >= 60 ? floor($duration / 60) . ' hour' : $duration . ' minute';
+                    if ($duration >= 60 && $duration % 60 > 0) {
+                        $duration_text .= ' ' . ($duration % 60) . ' minute';
+                    }
+                    if ($duration >= 120 || ($duration >= 60 && $duration % 60 > 0)) {
+                        $duration_text .= 's';
+                    }
+                    
+                    $service['Description'] = "A {$duration_text} session with one of our professional staff members.";
+                }
             }
         }
         

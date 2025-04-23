@@ -1,7 +1,7 @@
 /**
- * Date Selection Module
+ * Enhanced Date Selection Module
  * 
- * Handles calendar and time slot selection
+ * Provides improved date and time selection functionality
  */
 
 const MBDateSelection = {
@@ -11,7 +11,8 @@ const MBDateSelection = {
     calendar: {
         year: new Date().getFullYear(),
         month: new Date().getMonth(),
-        selectedDate: null
+        selectedDate: null,
+        availableDates: []
     },
     
     /**
@@ -20,6 +21,8 @@ const MBDateSelection = {
      * @param {Object} options Configuration options
      */
     init: function(options = {}) {
+        console.log('Initializing date selection module');
+        
         // Set default options
         this.options = Object.assign({
             calendarContainer: '.mb-calendar-dates',
@@ -29,27 +32,52 @@ const MBDateSelection = {
             timeSlotsContainer: '.mb-time-slots',
             selectedDateDisplay: '.mb-selected-date',
             continueButton: '.mb-continue-btn',
+            timeSlotButtonClass: 'mb-time-slot-btn',
+            timeSelectedClass: 'mb-time-selected',
+            dateCellClass: 'mb-calendar-date',
+            dateAvailableClass: 'mb-date-available',
+            dateSelectedClass: 'mb-date-selected',
+            datePastClass: 'mb-date-past',
+            dateTodayClass: 'mb-date-today',
+            selectedDate: null,
+            selectedTime: null,
+            availableDates: [],
+            debugMode: false,
             onDateSelected: null,
-            onTimeSelected: null
+            onTimeSelected: null,
+            onContinue: null,
+            fetchTimeSlots: null
         }, options);
         
-        // Initial date setup
-        this.calendar.selectedDate = options.selectedDate || null;
+        // Set initial state
+        this.calendar.selectedDate = this.options.selectedDate || null;
+        this.calendar.availableDates = this.options.availableDates || [];
+        this.selectedTime = this.options.selectedTime || null;
         
         // Render calendar
         this.renderCalendar();
         
         // Set up event listeners
         this.setupEventListeners();
+        
+        // If date already selected, show time slots
+        if (this.calendar.selectedDate) {
+            this.loadTimeSlots(this.calendar.selectedDate);
+        }
     },
     
     /**
      * Render calendar for current month/year
      */
     renderCalendar: function() {
+        console.log('Rendering calendar for', this.calendar.year, this.calendar.month + 1);
+        
         // Get calendar container
         const container = document.querySelector(this.options.calendarContainer);
-        if (!container) return;
+        if (!container) {
+            console.error('Calendar container not found:', this.options.calendarContainer);
+            return;
+        }
         
         // Update month display
         const monthDisplay = document.querySelector(this.options.monthDisplay);
@@ -76,6 +104,12 @@ const MBDateSelection = {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
+        // Format available dates for easy lookup
+        const availableDatesMap = {};
+        this.calendar.availableDates.forEach(date => {
+            availableDatesMap[date] = true;
+        });
+        
         // Create days of month
         for (let day = 1; day <= daysInMonth; day++) {
             const date = new Date(this.calendar.year, this.calendar.month, day);
@@ -84,20 +118,22 @@ const MBDateSelection = {
             const dateString = date.toISOString().split('T')[0];
             const isToday = date.getTime() === today.getTime();
             const isPast = date < today;
-            const isSelected = this.calendar.selectedDate === dateString;
             
             // Check if date is available
-            const isAvailable = this.options.availableDates && 
-                               this.options.availableDates.includes(dateString);
+            const isAvailable = availableDatesMap[dateString] || 
+                                (this.options.debugMode && !isPast); // In debug mode, all future dates are available
+            
+            // Check if date is selected
+            const isSelected = this.calendar.selectedDate === dateString;
             
             // Create date element
             const dateElement = document.createElement('div');
-            dateElement.className = 'mb-calendar-date';
+            dateElement.className = this.options.dateCellClass;
             dateElement.innerHTML = `<span class="mb-date-number">${day}</span>`;
             
             // Add appropriate classes
-            if (isAvailable && !isPast) {
-                dateElement.classList.add('mb-date-available');
+            if (isAvailable) {
+                dateElement.classList.add(this.options.dateAvailableClass);
                 dateElement.dataset.date = dateString;
                 
                 // Add click event
@@ -107,24 +143,19 @@ const MBDateSelection = {
             }
             
             if (isPast) {
-                dateElement.classList.add('mb-date-past');
+                dateElement.classList.add(this.options.datePastClass);
             }
             
             if (isToday) {
-                dateElement.classList.add('mb-date-today');
+                dateElement.classList.add(this.options.dateTodayClass);
             }
             
             if (isSelected) {
-                dateElement.classList.add('mb-date-selected');
+                dateElement.classList.add(this.options.dateSelectedClass);
             }
             
             // Add to container
             container.appendChild(dateElement);
-        }
-        
-        // Load time slots if date is selected
-        if (this.calendar.selectedDate) {
-            this.loadTimeSlots(this.calendar.selectedDate);
         }
     },
     
@@ -145,6 +176,16 @@ const MBDateSelection = {
         if (nextButton) {
             nextButton.addEventListener('click', () => {
                 this.navigateMonth(1);
+            });
+        }
+        
+        // Continue button
+        const continueButton = document.querySelector(this.options.continueButton);
+        if (continueButton) {
+            continueButton.parentElement.addEventListener('click', () => {
+                if (typeof this.options.onContinue === 'function') {
+                    this.options.onContinue(this.calendar.selectedDate, this.selectedTime);
+                }
             });
         }
     },
@@ -177,16 +218,18 @@ const MBDateSelection = {
      * @param {string} dateString Date string (YYYY-MM-DD)
      */
     selectDate: function(dateString) {
+        console.log('Selecting date:', dateString);
+        
         // Update selected date
         this.calendar.selectedDate = dateString;
         
         // Update calendar UI
-        const dateElements = document.querySelectorAll(`${this.options.calendarContainer} .mb-calendar-date`);
+        const dateElements = document.querySelectorAll(`${this.options.calendarContainer} .${this.options.dateCellClass}`);
         dateElements.forEach(el => {
             if (el.dataset.date === dateString) {
-                el.classList.add('mb-date-selected');
+                el.classList.add(this.options.dateSelectedClass);
             } else {
-                el.classList.remove('mb-date-selected');
+                el.classList.remove(this.options.dateSelectedClass);
             }
         });
         
@@ -208,12 +251,20 @@ const MBDateSelection = {
         // Show selected date
         const selectedDateDisplay = document.querySelector(this.options.selectedDateDisplay);
         if (selectedDateDisplay) {
-            selectedDateDisplay.textContent = MBUtils.formatDate(dateString, 'long');
+            const formattedDate = new Date(dateString).toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric'
+            });
+            selectedDateDisplay.textContent = formattedDate;
         }
         
         // Show loading state in time slots container
         const container = document.querySelector(this.options.timeSlotsContainer);
-        if (!container) return;
+        if (!container) {
+            console.error('Time slots container not found:', this.options.timeSlotsContainer);
+            return;
+        }
         
         container.innerHTML = `
             <div class="mb-loading">
@@ -221,6 +272,9 @@ const MBDateSelection = {
                 <div class="mb-loading-text">Loading available times...</div>
             </div>
         `;
+        
+        // Reset selected time
+        this.selectedTime = null;
         
         // Trigger onTimeSelected with null to indicate no time selected
         if (typeof this.options.onTimeSelected === 'function') {
@@ -239,18 +293,20 @@ const MBDateSelection = {
             continueButton.parentElement.classList.add('mb-hidden');
         }
         
-        // If mock data provided, use it
-        if (this.options.mockTimeSlots) {
+        // If in debug mode and no fetchTimeSlots provided, use mock data
+        if (this.options.debugMode && !this.options.fetchTimeSlots) {
+            const mockTimeSlots = this.generateMockTimeSlots();
             setTimeout(() => {
-                this.renderTimeSlots(this.options.mockTimeSlots);
-            }, 500);
+                this.renderTimeSlots(mockTimeSlots);
+            }, 800);
             return;
         }
         
         // Make API request if available
-        if (this.options.fetchTimeSlots) {
+        if (typeof this.options.fetchTimeSlots === 'function') {
             this.options.fetchTimeSlots(dateString)
                 .then(timeSlots => {
+                    console.log('Received time slots:', timeSlots);
                     this.renderTimeSlots(timeSlots);
                 })
                 .catch(error => {
@@ -258,11 +314,34 @@ const MBDateSelection = {
                     this.renderNoTimeSlots();
                 });
         } else {
-            // Fallback for testing
-            setTimeout(() => {
-                this.renderNoTimeSlots();
-            }, 500);
+            console.warn('No fetchTimeSlots function provided');
+            this.renderNoTimeSlots();
         }
+    },
+    
+    /**
+     * Generate mock time slots for debugging
+     * 
+     * @return {Array} Array of time strings
+     */
+    generateMockTimeSlots: function() {
+        const slots = [];
+        // Morning slots
+        for (let hour = 9; hour < 12; hour++) {
+            slots.push(`${hour}:00`);
+            slots.push(`${hour}:30`);
+        }
+        // Afternoon slots
+        for (let hour = 13; hour < 17; hour++) {
+            slots.push(`${hour}:00`);
+            slots.push(`${hour}:30`);
+        }
+        // Evening slots
+        for (let hour = 17; hour < 20; hour++) {
+            slots.push(`${hour}:00`);
+            slots.push(`${hour}:30`);
+        }
+        return slots;
     },
     
     /**
@@ -271,21 +350,21 @@ const MBDateSelection = {
      * @param {Array} timeSlots Array of time strings (HH:MM)
      */
     renderTimeSlots: function(timeSlots) {
+        // Get container
+        const container = document.querySelector(this.options.timeSlotsContainer);
+        if (!container) return;
+        
         // If no time slots, show message
         if (!timeSlots || timeSlots.length === 0) {
             this.renderNoTimeSlots();
             return;
         }
         
-        // Get container
-        const container = document.querySelector(this.options.timeSlotsContainer);
-        if (!container) return;
-        
         // Clear container
         container.innerHTML = '';
         
         // Group time slots by period
-        const groupedSlots = MBUtils.groupTimeSlots(timeSlots);
+        const groupedSlots = this.groupTimeSlots(timeSlots);
         
         // Define period titles
         const periodTitles = {
@@ -316,9 +395,14 @@ const MBDateSelection = {
             // Add time slot buttons
             groupedSlots[period].forEach(time => {
                 const button = document.createElement('button');
-                button.className = 'mb-time-slot-btn';
-                button.textContent = MBUtils.formatTime(time);
+                button.className = this.options.timeSlotButtonClass;
+                button.textContent = this.formatTime(time);
                 button.dataset.time = time;
+                
+                // Check if this was previously selected
+                if (this.selectedTime === time) {
+                    button.classList.add(this.options.timeSelectedClass);
+                }
                 
                 // Add click event
                 button.addEventListener('click', () => {
@@ -365,13 +449,18 @@ const MBDateSelection = {
      * @param {string} time Time string (HH:MM)
      */
     selectTime: function(time) {
+        console.log('Selecting time:', time);
+        
+        // Update selected time
+        this.selectedTime = time;
+        
         // Update time slot UI
-        const timeButtons = document.querySelectorAll(`${this.options.timeSlotsContainer} .mb-time-slot-btn`);
+        const timeButtons = document.querySelectorAll(`.${this.options.timeSlotButtonClass}`);
         timeButtons.forEach(button => {
             if (button.dataset.time === time) {
-                button.classList.add('mb-time-selected');
+                button.classList.add(this.options.timeSelectedClass);
             } else {
-                button.classList.remove('mb-time-selected');
+                button.classList.remove(this.options.timeSelectedClass);
             }
         });
         
@@ -388,15 +477,81 @@ const MBDateSelection = {
     },
     
     /**
+     * Group time slots by period (morning, afternoon, evening)
+     * 
+     * @param {Array} timeSlots Array of time strings (HH:MM)
+     * @return {Object} Grouped time slots
+     */
+    groupTimeSlots: function(timeSlots) {
+        const grouped = {
+            morning: [],
+            afternoon: [],
+            evening: []
+        };
+        
+        timeSlots.forEach(time => {
+            const hour = parseInt(time.split(':')[0]);
+            
+            if (hour < 12) {
+                grouped.morning.push(time);
+            } else if (hour < 17) {
+                grouped.afternoon.push(time);
+            } else {
+                grouped.evening.push(time);
+            }
+        });
+        
+        return grouped;
+    },
+    
+    /**
+     * Format time
+     * 
+     * @param {string} timeString Time string (HH:MM)
+     * @return {string} Formatted time
+     */
+    formatTime: function(timeString) {
+        const [hours, minutes] = timeString.split(':');
+        const hour = parseInt(hours);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const hour12 = hour % 12 || 12;
+        return `${hour12}:${minutes.padStart(2, '0')} ${ampm}`;
+    },
+    
+    /**
      * Set available dates
      * 
      * @param {Array} dates Array of date strings (YYYY-MM-DD)
      */
     setAvailableDates: function(dates) {
-        this.options.availableDates = dates;
+        console.log('Setting available dates:', dates);
+        this.calendar.availableDates = dates;
         this.renderCalendar();
+    },
+    
+    /**
+     * Clear selection
+     */
+    clearSelection: function() {
+        this.calendar.selectedDate = null;
+        this.selectedTime = null;
+        
+        // Update UI
+        this.renderCalendar();
+        
+        // Hide time slots
+        const timeSlotsContainer = document.querySelector('.mb-time-slots-container');
+        if (timeSlotsContainer) {
+            timeSlotsContainer.classList.add('mb-hidden');
+        }
+        
+        // Hide continue button
+        const continueButton = document.querySelector(this.options.continueButton);
+        if (continueButton) {
+            continueButton.parentElement.classList.add('mb-hidden');
+        }
     }
 };
 
-// Export module globally
+// Export the module globally
 window.MBDateSelection = MBDateSelection;
